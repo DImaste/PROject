@@ -1,3 +1,10 @@
+<?php
+
+define( 'root_page', '' );
+require_once root_page . './functions.php';
+
+?>
+
 <form action="verify.php" method="post"> 
     User Name:<br> 
     <input type="text" name="username"><br><br> 

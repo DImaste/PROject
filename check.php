@@ -1,3 +1,11 @@
+<?php
+
+define( 'root_page', '' );
+require_once root_page . './functions.php';
+
+?>
+
+
 <?php 
 if(isset($_POST['submit'])){ 
     $dbHost = "localhost";        //Location Of Database usually its localhost 
