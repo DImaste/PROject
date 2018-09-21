@@ -11,6 +11,11 @@ ini_set('display_startup_errors', 1);
 define( 'root_page', '' );
 require_once root_page . 'functions.php';
 
+
+
+
+
+
 ?>
 
 <head>
