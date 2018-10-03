@@ -9,9 +9,6 @@ if( !defined( 'root_page' ) ) {
     exit;
 }
 
-
-
-
 ##
 ## Подключение к базе данных MySQL
 ##
