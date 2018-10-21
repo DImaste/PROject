@@ -13,15 +13,17 @@ if( !defined( 'root_page' ) ) {
 ## Подключение к базе данных MySQL
 ##
 
+//DELETE IF CONFIG FILE IS RIGHT WORKING
+
 $DBMS = 'MySQL';
 
-$_DVWA = array();
-$_DVWA[ 'db_server' ]   = '127.0.0.1';
-$_DVWA[ 'db_database' ] = 'vulnapp';
-$_DVWA[ 'db_user' ]     = 'root';
-$_DVWA[ 'db_password' ] = 'toor';
+$_VulnWapp = array();
+$_VulnWapp[ 'db_server' ]   = 'localhost';
+$_VulnWapp[ 'db_database' ] = 'vulnapp';
+$_VulnWapp[ 'db_user' ]     = 'creator';
+$_VulnWapp[ 'db_password' ] = 'toor';
 
-$_DVWA[ 'db_port '] = '5432';
+$_VulnWapp[ 'db_port '] = '3306';
 
 
 ##
@@ -46,7 +48,7 @@ $DBMS_errorFunc = '';
 
 # Вывод сообщений
 
-function dvwaMessagePush( $pMessage ) {
+function PushMessage( $pMessage ) {
 	$dvwaSession =& dvwaSessionGrab();
 	if( !isset( $dvwaSession[ 'messages' ] ) ) {
 		$dvwaSession[ 'messages' ] = array();
@@ -77,8 +79,8 @@ function messagesPopAllToHtml() {
 
 function checkToken( $user_token, $session_token, $returnURL ) {  # Validate the given (CSRF) token
 	if( $user_token !== $session_token || !isset( $session_token ) ) {
-		dvwaMessagePush( 'CSRF token is incorrect' );
-		dvwaRedirect( $returnURL );
+		PushMessage( 'CSRF token is incorrect' );
+		RedirectTo( $returnURL );
 	}
 }
 
@@ -104,15 +106,15 @@ function &dvwaSessionGrab() {
 	return $_SESSION[ 'dvwa' ];
 }
 
-function dvwaPageStartup( $pActions ) {
+function PageStartup( $pActions ) {
 	if( in_array( 'authenticated', $pActions ) ) {
-		if( !dvwaIsLoggedIn()) {
-			dvwaRedirect( DVWA_WEB_PAGE_TO_ROOT . 'login.php' );
+		if( !IsLoggedIn()) {
+			RedirectTo( root_page . 'login.php' );
 		}
 	}
 }
 
-function dvwaIsLoggedIn() {
+function IsLoggedIn() {
 	$dvwaSession =& dvwaSessionGrab();
 	return isset( $dvwaSession[ 'username' ] );
 }
@@ -130,13 +132,13 @@ function dvwaCurrentUser() {
 
 # Перезагрузка страницы
 
-function dvwaPageReload() {
-	dvwaRedirect( $_SERVER[ 'PHP_SELF' ] );
+function ReloadPage() {
+	RedirectTo( $_SERVER[ 'PHP_SELF' ] );
 }
 
 # Перенаправление
 
-function dvwaRedirect( $pLocation ) {
+function RedirectTo($pLocation ) {
 	session_commit();
 	header( "Location: {$pLocation}" );
 	exit;
@@ -155,24 +157,25 @@ else {
 	$DBMS_errorFunc = '';
 }
 
-function dvwaDatabaseConnect() {
-	global $_DVWA;
+function DatabaseConnect() {
+	global $_VulnWapp;
 	global $DBMS;
+    global $DBMS_errorFunc;
 	//global $DBMS_connError;
 	global $db;
 
 	if( $DBMS == 'MySQL' ) {
-		if( !@($GLOBALS["___mysqli_ston"] = mysqli_connect( $_DVWA[ 'db_server' ],  $_DVWA[ 'db_user' ],  $_DVWA[ 'db_password' ] ))
-		|| !@((bool)mysqli_query($GLOBALS["___mysqli_ston"], "USE " . $_DVWA[ 'db_database' ])) ) {
+		if( !@($GLOBALS["___mysqli_ston"] = mysqli_connect( $_VulnWapp[ 'db_server' ],  $_VulnWapp[ 'db_user' ],  $_VulnWapp[ 'db_password' ] ))
+		|| !@((bool)mysqli_query($GLOBALS["___mysqli_ston"], "USE " . $_VulnWapp[ 'db_database' ])) ) {
 			//die( $DBMS_connError );
 			dvwaLogout();
-			dvwaMessagePush( 'Unable to connect to the database.<br />' . $DBMS_errorFunc );
-			dvwaRedirect( DVWA_WEB_PAGE_TO_ROOT . 'setup.php' );
+			PushMessage( 'Unable to connect to the database.<br />' . $DBMS_errorFunc );
+			RedirectTo( root_page . 'setup.php' );
 		}
 		// MySQL PDO Prepared Statements (for impossible levels)
-		$db = new PDO('mysql:host=' . $_DVWA[ 'db_server' ].';dbname=' . $_DVWA[ 'db_database' ].';charset=utf8', $_DVWA[ 'db_user' ], $_DVWA[ 'db_password' ]);
-		$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-		$db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+		#$db = new PDO('mysql:host=' . $_VulnWapp[ 'db_server' ].';dbname=' . $_VulnWapp[ 'db_database' ].';charset=utf8', $_VulnWapp[ 'db_user' ], $_VulnWapp[ 'db_password' ]);
+		#$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		#$db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 	}
 
 	else {
@@ -180,7 +183,7 @@ function dvwaDatabaseConnect() {
 	}	
 }
 
-$PHPUploadPath    = realpath( getcwd() . DIRECTORY_SEPARATOR . root_page . "hackable" . DIRECTORY_SEPARATOR . "uploads" ) . DIRECTORY_SEPARATOR;
+$PHPUploadPath    = realpath( getcwd() . DIRECTORY_SEPARATOR . root_page . "temp" . DIRECTORY_SEPARATOR . "uploads" ) . DIRECTORY_SEPARATOR;
 $PHPCONFIGPath       = realpath( getcwd() . DIRECTORY_SEPARATOR . root_page . "config");
 
 
@@ -192,19 +195,18 @@ $phpURLFopen      = 'PHP function allow_url_fopen: <span class="' . ( ini_get( '
 $phpGD            = 'PHP module gd: <span class="' . ( ( extension_loaded( 'gd' ) && function_exists( 'gd_info' ) ) ? 'success">Installed' : 'failure">Missing' ) . '</span>';                    // File Upload
 $phpMySQL         = 'PHP module mysql: <span class="' . ( ( extension_loaded( 'mysqli' ) && function_exists( 'mysqli_query' ) ) ? 'success">Installed' : 'failure">Missing' ) . '</span>';                // Core DVWA
 $phpPDO           = 'PHP module pdo_mysql: <span class="' . ( extension_loaded( 'pdo_mysql' ) ? 'success">Installed' : 'failure">Missing' ) . '</span>';                // SQLi
-$DVWARecaptcha    = 'reCAPTCHA key: <span class="' . ( ( isset( $_DVWA[ 'recaptcha_public_key' ] ) && $_DVWA[ 'recaptcha_public_key' ] != '' ) ? 'success">' . $_DVWA[ 'recaptcha_public_key' ] : 'failure">Missing' ) . '</span>';
 
 $DVWAUploadsWrite = '[User: ' . get_current_user() . '] Writable folder ' . $PHPUploadPath . ': <span class="' . ( is_writable( $PHPUploadPath ) ? 'success">Yes' : 'failure">No' ) . '</span>';                                     // File Upload
-$bakWritable = '[User: ' . get_current_user() . '] Writable folder ' . $PHPCONFIGPath . ': <span class="' . ( is_writable( $PHPCONFIGPath ) ? 'success">Yes' : 'failure">No' ) . '</span>';   // config.php.bak check                                  // File Upload
+$bakWritable = '[User: ' . get_current_user() . '] Writable folder ' . $PHPCONFIGPath . ': <span class="' . ( is_writable( $PHPCONFIGPath ) ? 'success">Yes' : 'failure">No' ) . '</span>';   // config backup check                                  // File Upload
 
 
-$DVWAOS           = 'Operating system: <em>' . ( strtoupper( substr (PHP_OS, 0, 3)) === 'WIN' ? 'Windows' : '*nix' ) . '</em>';
+$VulnWappOS       = 'Operating system: <em>' . ( strtoupper( substr (PHP_OS, 0, 3)) === 'WIN' ? 'Windows' : '*nix' ) . '</em>';
 $SERVER_NAME      = 'Web Server SERVER_NAME: <em>' . $_SERVER[ 'SERVER_NAME' ] . '</em>';                                                                                                          // CSRF
 
-$MYSQL_USER       = 'MySQL username: <em>' . $_DVWA[ 'db_user' ] . '</em>';
-$MYSQL_PASS       = 'MySQL password: <em>' . ( ($_DVWA[ 'db_password' ] != "" ) ? '******' : '*blank*' ) . '</em>';
-$MYSQL_DB         = 'MySQL database: <em>' . $_DVWA[ 'db_database' ] . '</em>';
-$MYSQL_SERVER     = 'MySQL host: <em>' . $_DVWA[ 'db_server' ] . '</em>';
+$MYSQL_USER       = 'MySQL username: <em>' . $_VulnWapp[ 'db_user' ] . '</em>';
+$MYSQL_PASS       = 'MySQL password: <em>' . ( ($_VulnWapp[ 'db_password' ] != "" ) ? '******' : '*blank*' ) . '</em>';
+$MYSQL_DB         = 'MySQL database: <em>' . $_VulnWapp[ 'db_database' ] . '</em>';
+$MYSQL_SERVER     = 'MySQL host: <em>' . $_VulnWapp[ 'db_server' ] . '</em>';
 
 
 ?>

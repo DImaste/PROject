@@ -22,14 +22,14 @@ if( !isset( $html ) ) {
 $security_levels = array('low', 'medium', 'high', 'impossible');
 if( !isset( $_COOKIE[ 'security' ] ) || !in_array( $_COOKIE[ 'security' ], $security_levels ) ) {
 	// Set security cookie to impossible if no cookie exists
-	if( in_array( $_DVWA[ 'default_security_level' ], $security_levels) ) {
-		dvwaSecurityLevelSet( $_DVWA[ 'default_security_level' ] );
+	if( in_array( $_VulnWapp[ 'default_security_level' ], $security_levels) ) {
+		dvwaSecurityLevelSet( $_VulnWapp[ 'default_security_level' ] );
 	}
 	else {
 		dvwaSecurityLevelSet( 'impossible' );
 	}
 
-	if( $_DVWA[ 'default_phpids_level' ] == 'enabled' )
+	if( $_VulnWapp[ 'default_phpids_level' ] == 'enabled' )
 		dvwaPhpIdsEnabledSet( true );
 	else
 		dvwaPhpIdsEnabledSet( false );
@@ -58,8 +58,8 @@ function &dvwaSessionGrab() {
 
 function dvwaPageStartup( $pActions ) {
 	if( in_array( 'authenticated', $pActions ) ) {
-		if( !dvwaIsLoggedIn()) {
-			dvwaRedirect( DVWA_WEB_PAGE_TO_ROOT . 'login.php' );
+		if( !IsLoggedIn()) {
+			RedirectTo( DVWA_WEB_PAGE_TO_ROOT . 'login.php' );
 		}
 	}
 
@@ -94,7 +94,7 @@ function dvwaLogin( $pUsername ) {
 }
 
 
-function dvwaIsLoggedIn() {
+function IsLoggedIn() {
 	$dvwaSession =& dvwaSessionGrab();
 	return isset( $dvwaSession[ 'username' ] );
 }
@@ -106,8 +106,8 @@ function dvwaLogout() {
 }
 
 
-function dvwaPageReload() {
-	dvwaRedirect( $_SERVER[ 'PHP_SELF' ] );
+function ReloadPage() {
+	RedirectTo( $_SERVER[ 'PHP_SELF' ] );
 }
 
 function dvwaCurrentUser() {
@@ -149,7 +149,7 @@ function dvwaSecurityLevelSet( $pSecurityLevel ) {
 
 // Start message functions --
 
-function dvwaMessagePush( $pMessage ) {
+function PushMessage($pMessage ) {
 	$dvwaSession =& dvwaSessionGrab();
 	if( !isset( $dvwaSession[ 'messages' ] ) ) {
 		$dvwaSession[ 'messages' ] = array();
@@ -182,7 +182,7 @@ function dvwaHtmlEcho( $pPage ) {
 	$menuBlocks = array();
 
 	$menuBlocks[ 'home' ] = array();
-	if( dvwaIsLoggedIn() ) {
+	if( IsLoggedIn() ) {
 		$menuBlocks[ 'home' ][] = array( 'id' => 'home', 'name' => 'Home', 'url' => '.' );
 		$menuBlocks[ 'home' ][] = array( 'id' => 'instructions', 'name' => 'Instructions', 'url' => 'instructions.php' );
 		$menuBlocks[ 'home' ][] = array( 'id' => 'setup', 'name' => 'Setup / Reset DB', 'url' => 'setup.php' );
@@ -192,7 +192,7 @@ function dvwaHtmlEcho( $pPage ) {
 		$menuBlocks[ 'home' ][] = array( 'id' => 'instructions', 'name' => 'Instructions', 'url' => 'instructions.php' );
 	}
 
-	if( dvwaIsLoggedIn() ) {
+	if( IsLoggedIn() ) {
 		$menuBlocks[ 'vulnerabilities' ] = array();
 		$menuBlocks[ 'vulnerabilities' ][] = array( 'id' => 'brute', 'name' => 'Brute Force', 'url' => 'vulnerabilities/brute/' );
 		$menuBlocks[ 'vulnerabilities' ][] = array( 'id' => 'exec', 'name' => 'Command Injection', 'url' => 'vulnerabilities/exec/' );
@@ -210,13 +210,13 @@ function dvwaHtmlEcho( $pPage ) {
 	}
 
 	$menuBlocks[ 'meta' ] = array();
-	if( dvwaIsLoggedIn() ) {
+	if( IsLoggedIn() ) {
 		$menuBlocks[ 'meta' ][] = array( 'id' => 'security', 'name' => 'DVWA Security', 'url' => 'security.php' );
 		$menuBlocks[ 'meta' ][] = array( 'id' => 'phpinfo', 'name' => 'PHP Info', 'url' => 'phpinfo.php' );
 	}
 	$menuBlocks[ 'meta' ][] = array( 'id' => 'about', 'name' => 'About', 'url' => 'about.php' );
 
-	if( dvwaIsLoggedIn() ) {
+	if( IsLoggedIn() ) {
 		$menuBlocks[ 'logout' ] = array();
 		$menuBlocks[ 'logout' ][] = array( 'id' => 'logout', 'name' => 'Logout', 'url' => 'logout.php' );
 	}
@@ -260,7 +260,7 @@ function dvwaHtmlEcho( $pPage ) {
 	}
 
 	$systemInfoHtml = "";
-	if( dvwaIsLoggedIn() )
+	if( IsLoggedIn() )
 		$systemInfoHtml = "<div align=\"left\">{$userInfoHtml}<br /><em>Security Level:</em> {$securityLevelHtml}<br />{$phpIdsHtml}</div>";
 	if( $pPage[ 'source_button' ] ) {
 		$systemInfoHtml = dvwaButtonSourceHtmlGet( $pPage[ 'source_button' ] ) . " $systemInfoHtml";
@@ -458,29 +458,29 @@ else {
 //	</div>';
 
 function dvwaDatabaseConnect() {
-	global $_DVWA;
+	global $_VulnWapp;
 	global $DBMS;
 	//global $DBMS_connError;
 	global $db;
 
 	if( $DBMS == 'MySQL' ) {
-		if( !@($GLOBALS["___mysqli_ston"] = mysqli_connect( $_DVWA[ 'db_server' ],  $_DVWA[ 'db_user' ],  $_DVWA[ 'db_password' ] ))
-		|| !@((bool)mysqli_query($GLOBALS["___mysqli_ston"], "USE " . $_DVWA[ 'db_database' ])) ) {
+		if( !@($GLOBALS["___mysqli_ston"] = mysqli_connect( $_VulnWapp[ 'db_server' ],  $_VulnWapp[ 'db_user' ],  $_VulnWapp[ 'db_password' ] ))
+		|| !@((bool)mysqli_query($GLOBALS["___mysqli_ston"], "USE " . $_VulnWapp[ 'db_database' ])) ) {
 			//die( $DBMS_connError );
 			dvwaLogout();
-			dvwaMessagePush( 'Unable to connect to the database.<br />' . $DBMS_errorFunc );
-			dvwaRedirect( DVWA_WEB_PAGE_TO_ROOT . 'setup.php' );
+			PushMessage( 'Unable to connect to the database.<br />' . $DBMS_errorFunc );
+			RedirectTo( DVWA_WEB_PAGE_TO_ROOT . 'setup.php' );
 		}
 		// MySQL PDO Prepared Statements (for impossible levels)
-		$db = new PDO('mysql:host=' . $_DVWA[ 'db_server' ].';dbname=' . $_DVWA[ 'db_database' ].';charset=utf8', $_DVWA[ 'db_user' ], $_DVWA[ 'db_password' ]);
+		$db = new PDO('mysql:host=' . $_VulnWapp[ 'db_server' ].';dbname=' . $_VulnWapp[ 'db_database' ].';charset=utf8', $_VulnWapp[ 'db_user' ], $_VulnWapp[ 'db_password' ]);
 		$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		$db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 	}
 	elseif( $DBMS == 'PGSQL' ) {
 		//$dbconn = pg_connect("host={$_DVWA[ 'db_server' ]} dbname={$_DVWA[ 'db_database' ]} user={$_DVWA[ 'db_user' ]} password={$_DVWA[ 'db_password' ])}"
 		//or die( $DBMS_connError );
-		dvwaMessagePush( 'PostgreSQL is not yet fully supported.' );
-		dvwaPageReload();
+		PushMessage( 'PostgreSQL is not yet fully supported.' );
+		ReloadPage();
 	}
 	else {
 		die ( "Unknown {$DBMS} selected." );
@@ -523,8 +523,8 @@ function dvwaGuestbook() {
 // Token functions --
 function checkToken( $user_token, $session_token, $returnURL ) {  # Validate the given (CSRF) token
 	if( $user_token !== $session_token || !isset( $session_token ) ) {
-		dvwaMessagePush( 'CSRF token is incorrect' );
-		dvwaRedirect( $returnURL );
+		PushMessage( 'CSRF token is incorrect' );
+		RedirectTo( $returnURL );
 	}
 }
 
@@ -559,7 +559,7 @@ $phpURLFopen      = 'PHP function allow_url_fopen: <span class="' . ( ini_get( '
 $phpGD            = 'PHP module gd: <span class="' . ( ( extension_loaded( 'gd' ) && function_exists( 'gd_info' ) ) ? 'success">Installed' : 'failure">Missing' ) . '</span>';                    // File Upload
 $phpMySQL         = 'PHP module mysql: <span class="' . ( ( extension_loaded( 'mysqli' ) && function_exists( 'mysqli_query' ) ) ? 'success">Installed' : 'failure">Missing' ) . '</span>';                // Core DVWA
 $phpPDO           = 'PHP module pdo_mysql: <span class="' . ( extension_loaded( 'pdo_mysql' ) ? 'success">Installed' : 'failure">Missing' ) . '</span>';                // SQLi
-$DVWARecaptcha    = 'reCAPTCHA key: <span class="' . ( ( isset( $_DVWA[ 'recaptcha_public_key' ] ) && $_DVWA[ 'recaptcha_public_key' ] != '' ) ? 'success">' . $_DVWA[ 'recaptcha_public_key' ] : 'failure">Missing' ) . '</span>';
+$DVWARecaptcha    = 'reCAPTCHA key: <span class="' . ( ( isset( $_VulnWapp[ 'recaptcha_public_key' ] ) && $_VulnWapp[ 'recaptcha_public_key' ] != '' ) ? 'success">' . $_VulnWapp[ 'recaptcha_public_key' ] : 'failure">Missing' ) . '</span>';
 
 $DVWAUploadsWrite = '[User: ' . get_current_user() . '] Writable folder ' . $PHPUploadPath . ': <span class="' . ( is_writable( $PHPUploadPath ) ? 'success">Yes' : 'failure">No' ) . '</span>';                                     // File Upload
 $bakWritable = '[User: ' . get_current_user() . '] Writable folder ' . $PHPCONFIGPath . ': <span class="' . ( is_writable( $PHPCONFIGPath ) ? 'success">Yes' : 'failure">No' ) . '</span>';   // config.php.bak check                                  // File Upload
@@ -568,10 +568,10 @@ $DVWAPHPWrite     = '[User: ' . get_current_user() . '] Writable file ' . $PHPID
 $DVWAOS           = 'Operating system: <em>' . ( strtoupper( substr (PHP_OS, 0, 3)) === 'WIN' ? 'Windows' : '*nix' ) . '</em>';
 $SERVER_NAME      = 'Web Server SERVER_NAME: <em>' . $_SERVER[ 'SERVER_NAME' ] . '</em>';                                                                                                          // CSRF
 
-$MYSQL_USER       = 'MySQL username: <em>' . $_DVWA[ 'db_user' ] . '</em>';
-$MYSQL_PASS       = 'MySQL password: <em>' . ( ($_DVWA[ 'db_password' ] != "" ) ? '******' : '*blank*' ) . '</em>';
-$MYSQL_DB         = 'MySQL database: <em>' . $_DVWA[ 'db_database' ] . '</em>';
-$MYSQL_SERVER     = 'MySQL host: <em>' . $_DVWA[ 'db_server' ] . '</em>';
+$MYSQL_USER       = 'MySQL username: <em>' . $_VulnWapp[ 'db_user' ] . '</em>';
+$MYSQL_PASS       = 'MySQL password: <em>' . ( ($_VulnWapp[ 'db_password' ] != "" ) ? '******' : '*blank*' ) . '</em>';
+$MYSQL_DB         = 'MySQL database: <em>' . $_VulnWapp[ 'db_database' ] . '</em>';
+$MYSQL_SERVER     = 'MySQL host: <em>' . $_VulnWapp[ 'db_server' ] . '</em>';
 // -- END (Setup Functions)
 
 ?>

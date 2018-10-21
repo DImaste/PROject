@@ -14,10 +14,12 @@ require_once root_page . 'functions.php';
 // Если авторизован, то редирект в личный профиль(myprofile) , если нет -  redirect login
 
 
-session_start();
+PageStartup( array( 'authenticated', ' ' ) );
 
 
 
+
+/*
 if(!$_SESSION['logged']){
     header("Location: myprofile.php");
     exit;
@@ -28,7 +30,7 @@ if(!$_SESSION['logged']){
 
 
 echo 'Welcome, '.$_SESSION['username'];
-
+*/
 
 
 //

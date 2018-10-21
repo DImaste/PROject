@@ -3,6 +3,12 @@
 define( 'root_page', '' );
 require_once root_page . './functions.php';
 
+DatabaseConnect();
+
+
+
+
+
 ?>
 
 <form action="verify.php" method="post">
