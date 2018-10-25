@@ -15,6 +15,8 @@ if( !defined( 'root_page' ) ) {
 
 //DELETE IF CONFIG FILE IS RIGHT WORKING
 
+#require 'DBconfig.php';
+
 $DBMS = 'MySQL';
 
 $_VulnWapp = array();
@@ -49,61 +51,59 @@ $DBMS_errorFunc = '';
 # Вывод сообщений
 
 function PushMessage( $pMessage ) {
-	$dvwaSession =& dvwaSessionGrab();
-	if( !isset( $dvwaSession[ 'messages' ] ) ) {
-		$dvwaSession[ 'messages' ] = array();
+    $VulnWappSession =& VulnWappSessionGet();
+	if( !isset( $VulnWappSession[ 'messages' ] ) ) {
+        $VulnWappSession[ 'messages' ] = array();
 	}
-	$dvwaSession[ 'messages' ][] = $pMessage;
+    $VulnWappSession[ 'messages' ][] = $pMessage;
 }
 
-function dvwaMessagePop() {
-	$dvwaSession =& dvwaSessionGrab();
-	if( !isset( $dvwaSession[ 'messages' ] ) || count( $dvwaSession[ 'messages' ] ) == 0 ) {
+function MessagePop() {
+	$VulnWappSession =& VulnWappSessionGet();
+	if( !isset( $VulnWappSession[ 'messages' ] ) || count( $VulnWappSession[ 'messages' ] ) == 0 ) {
 		return false;
 	}
-	return array_shift( $dvwaSession[ 'messages' ] );
+	return array_shift( $VulnWappSession[ 'messages' ] );
 }
-
 
 function messagesPopAllToHtml() {
 	$messagesHtml = '';
-	while( $message = dvwaMessagePop() ) {   // TODO- sharpen!
+	while( $message = MessagePop() ) {
 		$messagesHtml .= "<div class=\"message\">{$message}</div>";
 	}
 
 	return $messagesHtml;
 }
 
-
 # Функции сессий
 
-function checkToken( $user_token, $session_token, $returnURL ) {  # Validate the given (CSRF) token
+function checkToken( $user_token, $session_token, $returnURL ) {  # Проверка токена защиты от CSRF
 	if( $user_token !== $session_token || !isset( $session_token ) ) {
-		PushMessage( 'CSRF token is incorrect' );
+		PushMessage( 'CSRF токен неверен! Возможно, производится атака!' );
 		RedirectTo( $returnURL );
 	}
 }
 
-function generateSessionToken() {  # Generate a brand new (CSRF) token
+function generateSessionToken() {  # Генерация нового CSRF токена
 	if( isset( $_SESSION[ 'session_token' ] ) ) {
 		destroySessionToken();
 	}
 	$_SESSION[ 'session_token' ] = md5( uniqid() );
 }
 
-function destroySessionToken() {  # Destroy any session with the name 'session_token'
+function destroySessionToken() {  # Удалить Cookie - session_token
 	unset( $_SESSION[ 'session_token' ] );
 }
 
-function tokenField() {  # Return a field for the (CSRF) token
+function tokenField() {  # Получить значение токена
 	return "<input type='hidden' name='user_token' value='{$_SESSION[ 'session_token' ]}' />";
 }
 
-function &dvwaSessionGrab() {
-	if( !isset( $_SESSION[ 'dvwa' ] ) ) {
-		$_SESSION[ 'dvwa' ] = array();
+function &VulnWappSessionGet() {
+	if( !isset( $_SESSION[ 'VulnWapp' ] ) ) {
+		$_SESSION[ 'VulnWapp' ] = array();
 	}
-	return $_SESSION[ 'dvwa' ];
+	return $_SESSION[ 'VulnWapp' ];
 }
 
 function PageStartup( $pActions ) {
@@ -115,19 +115,23 @@ function PageStartup( $pActions ) {
 }
 
 function IsLoggedIn() {
-	$dvwaSession =& dvwaSessionGrab();
-	return isset( $dvwaSession[ 'username' ] );
+	$VulnWappSession =& VulnWappSessionGet();
+	return isset( $VulnWappSession[ 'username' ] );
 }
 
-
-function dvwaLogout() {
-	$dvwaSession =& dvwaSessionGrab();
-	unset( $dvwaSession[ 'username' ] );
+function Logout() {
+	$VulnWappSession =& VulnWappSessionGet();
+	unset( $VulnWappSession[ 'username' ] );
 }
 
-function dvwaCurrentUser() {
-	$dvwaSession =& dvwaSessionGrab();
-	return ( isset( $dvwaSession[ 'username' ]) ? $dvwaSession[ 'username' ] : '') ;
+function Login( $pUsername ) {
+    $VulnWappSession =& VulnWappSessionGet();
+    $VulnWappSession[ 'username' ] = $pUsername;
+}
+
+function CurrentUser() {
+	$VulnWappSession =& VulnWappSessionGet();
+	return ( isset( $VulnWappSession[ 'username' ]) ? $VulnWappSession[ 'username' ] : '') ;
 }
 
 # Перезагрузка страницы
@@ -143,8 +147,6 @@ function RedirectTo($pLocation ) {
 	header( "Location: {$pLocation}" );
 	exit;
 }
-
-
 
 # Связь с базой данных
 
@@ -167,17 +169,11 @@ function DatabaseConnect() {
 	if( $DBMS == 'MySQL' ) {
 		if( !@($GLOBALS["___mysqli_ston"] = mysqli_connect( $_VulnWapp[ 'db_server' ],  $_VulnWapp[ 'db_user' ],  $_VulnWapp[ 'db_password' ] ))
 		|| !@((bool)mysqli_query($GLOBALS["___mysqli_ston"], "USE " . $_VulnWapp[ 'db_database' ])) ) {
-			//die( $DBMS_connError );
-			dvwaLogout();
+			Logout();
 			PushMessage( 'Unable to connect to the database.<br />' . $DBMS_errorFunc );
 			RedirectTo( root_page . 'setup.php' );
 		}
-		// MySQL PDO Prepared Statements (for impossible levels)
-		#$db = new PDO('mysql:host=' . $_VulnWapp[ 'db_server' ].';dbname=' . $_VulnWapp[ 'db_database' ].';charset=utf8', $_VulnWapp[ 'db_user' ], $_VulnWapp[ 'db_password' ]);
-		#$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-		#$db->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 	}
-
 	else {
 		die ( "Unknown {$DBMS} selected." );
 	}	
@@ -186,17 +182,16 @@ function DatabaseConnect() {
 $PHPUploadPath    = realpath( getcwd() . DIRECTORY_SEPARATOR . root_page . "temp" . DIRECTORY_SEPARATOR . "uploads" ) . DIRECTORY_SEPARATOR;
 $PHPCONFIGPath       = realpath( getcwd() . DIRECTORY_SEPARATOR . root_page . "config");
 
-
 $phpDisplayErrors = 'PHP function display_errors: <em>' . ( ini_get( 'display_errors' ) ? 'Enabled</em> <i>(Easy Mode!)</i>' : 'Disabled</em>' );                                                  // Verbose error messages (e.g. full path disclosure)
 $phpSafeMode      = 'PHP function safe_mode: <span class="' . ( ini_get( 'safe_mode' ) ? 'failure">Enabled' : 'success">Disabled' ) . '</span>';                                                   // DEPRECATED as of PHP 5.3.0 and REMOVED as of PHP 5.4.0
 $phpMagicQuotes   = 'PHP function magic_quotes_gpc: <span class="' . ( ini_get( 'magic_quotes_gpc' ) ? 'failure">Enabled' : 'success">Disabled' ) . '</span>';                                     // DEPRECATED as of PHP 5.3.0 and REMOVED as of PHP 5.4.0
 $phpURLInclude    = 'PHP function allow_url_include: <span class="' . ( ini_get( 'allow_url_include' ) ? 'success">Enabled' : 'failure">Disabled' ) . '</span>';                                   // RFI
 $phpURLFopen      = 'PHP function allow_url_fopen: <span class="' . ( ini_get( 'allow_url_fopen' ) ? 'success">Enabled' : 'failure">Disabled' ) . '</span>';                                       // RFI
 $phpGD            = 'PHP module gd: <span class="' . ( ( extension_loaded( 'gd' ) && function_exists( 'gd_info' ) ) ? 'success">Installed' : 'failure">Missing' ) . '</span>';                    // File Upload
-$phpMySQL         = 'PHP module mysql: <span class="' . ( ( extension_loaded( 'mysqli' ) && function_exists( 'mysqli_query' ) ) ? 'success">Installed' : 'failure">Missing' ) . '</span>';                // Core DVWA
+$phpMySQL         = 'PHP module mysql: <span class="' . ( ( extension_loaded( 'mysqli' ) && function_exists( 'mysqli_query' ) ) ? 'success">Installed' : 'failure">Missing' ) . '</span>';                // Есть ли СУБД
 $phpPDO           = 'PHP module pdo_mysql: <span class="' . ( extension_loaded( 'pdo_mysql' ) ? 'success">Installed' : 'failure">Missing' ) . '</span>';                // SQLi
 
-$DVWAUploadsWrite = '[User: ' . get_current_user() . '] Writable folder ' . $PHPUploadPath . ': <span class="' . ( is_writable( $PHPUploadPath ) ? 'success">Yes' : 'failure">No' ) . '</span>';                                     // File Upload
+$UploadsWrite = '[User: ' . get_current_user() . '] Writable folder ' . $PHPUploadPath . ': <span class="' . ( is_writable( $PHPUploadPath ) ? 'success">Yes' : 'failure">No' ) . '</span>';                                     // File Upload
 $bakWritable = '[User: ' . get_current_user() . '] Writable folder ' . $PHPCONFIGPath . ': <span class="' . ( is_writable( $PHPCONFIGPath ) ? 'success">Yes' : 'failure">No' ) . '</span>';   // config backup check                                  // File Upload
 
 
@@ -207,6 +202,5 @@ $MYSQL_USER       = 'MySQL username: <em>' . $_VulnWapp[ 'db_user' ] . '</em>';
 $MYSQL_PASS       = 'MySQL password: <em>' . ( ($_VulnWapp[ 'db_password' ] != "" ) ? '******' : '*blank*' ) . '</em>';
 $MYSQL_DB         = 'MySQL database: <em>' . $_VulnWapp[ 'db_database' ] . '</em>';
 $MYSQL_SERVER     = 'MySQL host: <em>' . $_VulnWapp[ 'db_server' ] . '</em>';
-
 
 ?>

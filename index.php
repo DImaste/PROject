@@ -9,42 +9,35 @@ ini_set('display_startup_errors', 1);
 define( 'root_page', '' );
 require_once root_page . 'functions.php';
 
-// проверка существует ли БД, инициализирована ли она, если нет - редирект в setup
-
-// Если авторизован, то редирект в личный профиль(myprofile) , если нет -  redirect login
-
-
 PageStartup( array( 'authenticated', ' ' ) );
 
+echo 'Welcome, '.$VulnWappSession['username'];
 
 
-
-/*
-if(!$_SESSION['logged']){
+if(IsLoggedIn()){
+    echo 'Welcome, '.$VulnWappSession['username'];
     header("Location: myprofile.php");
     exit;
 } else {
 
     echo 'Please LOGIN!';
+
 }
 
-
-echo 'Welcome, '.$_SESSION['username'];
-*/
-
-
-//
-
-//
-
-
+echo "
+        
+    <html xmlns=\"http://www.w3.org/1999/xhtml\">	
+    
+    <body>	
+        <br />
+        <h1>Hi</h1>
+        
+        <br />
+    </body>
+    
+    </html>";
 
 
 ?>
 
-<head>
-	
-	<h1>Hi</h1>
 
-
-</head>
