@@ -13,12 +13,13 @@ if( !defined( 'root_page' ) ) {
 ## Подключение к базе данных MySQL
 ##
 
-//DELETE IF CONFIG FILE IS RIGHT WORKING
+# DELETE IF CONFIG FILE IS RIGHT WORKING
 
-#require 'DBconfig.php';
+	require 'config/DBconfig.php';
 
 $DBMS = 'MySQL';
 
+/*
 $_VulnWapp = array();
 $_VulnWapp[ 'db_server' ]   = 'localhost';
 $_VulnWapp[ 'db_database' ] = 'vulnapp';
@@ -26,7 +27,7 @@ $_VulnWapp[ 'db_user' ]     = 'creator';
 $_VulnWapp[ 'db_password' ] = 'toor';
 
 $_VulnWapp[ 'db_port '] = '3306';
-
+*/
 
 ##
 ## Запуск сессии
@@ -43,6 +44,11 @@ if( !isset( $html ) ) {
 }
 
 $DBMS_errorFunc = '';
+
+$flags = array();
+
+
+$sessionuser;
 
 ##
 ## Функции
@@ -122,11 +128,15 @@ function IsLoggedIn() {
 function Logout() {
 	$VulnWappSession =& VulnWappSessionGet();
 	unset( $VulnWappSession[ 'username' ] );
+    global $sessionuser;
+    $sessionuser = 'NULL';
 }
 
 function Login( $pUsername ) {
     $VulnWappSession =& VulnWappSessionGet();
     $VulnWappSession[ 'username' ] = $pUsername;
+    global $sessionuser;
+    $sessionuser = $pUsername;
 }
 
 function CurrentUser() {
@@ -139,6 +149,46 @@ function CurrentUser() {
 function ReloadPage() {
 	RedirectTo( $_SERVER[ 'PHP_SELF' ] );
 }
+
+# Работа с уязвимостями
+
+function generateFlag($length = 40){
+    $chars = 'abdefhiknrstyzABDEFGHKNQRSTYZ23456789!"%:?*(){};<>?[],';
+    $numChars = strlen($chars);
+    $string = '';
+    for ($i = 0; $i < $length; $i++) {
+        $string .= substr($chars, rand(1, $numChars) - 1, 1);
+    }
+    return $string;
+}
+
+function refreshFlags()
+{
+    global $flags;
+    for ($i =0; $i<=5; $i++)
+    {
+        $flags[$i] = generateFlag();
+        #print $flags[$i];
+        #echo ' <br> ';
+        #echo ' <h1> var_dump($flags[$i])  </h1>
+
+
+
+    }
+}
+
+function getFlag($i){
+    global $flags;
+    return $flags[$i];
+}
+
+function vardump($var) {
+    echo '<pre>';
+    var_dump($var);
+    echo '</pre>';
+}
+
+
 
 # Перенаправление
 

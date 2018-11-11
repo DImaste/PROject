@@ -16,6 +16,7 @@ echo 'Welcome, '.$VulnWappSession['username'];
 
 if(IsLoggedIn()){
     echo 'Welcome, '.$VulnWappSession['username'];
+    refreshFlags();
     header("Location: myprofile.php");
     exit;
 } else {

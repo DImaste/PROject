@@ -7,6 +7,11 @@
     define( 'root_page', '' );
     require_once root_page . 'functions.php';
 
+
+
+# TODO вопрос - вы действительно хотите переустановить приложение? Текущий прогресс будет утерян.
+
+
 	if( $DBMS == 'MySQL' ) {
 
 
@@ -40,7 +45,7 @@
 				ReloadPage();
 			}
 
-			$create_tb = "CREATE TABLE users (user_id int(6),first_name varchar(15),last_name varchar(15), user varchar(15), password varchar(32),avatar varchar(70), last_login TIMESTAMP, failed_login INT(3), PRIMARY KEY (user_id));";
+			$create_tb = "CREATE TABLE users (user_id int(6),first_name varchar(15),last_name varchar(15), user varchar(15), password varchar(32),avatar varchar(70), last_login TIMESTAMP, failed_login INT(3), PRIMARY KEY (user_id), percent int(6), active bool);";
 			if( !mysqli_query($GLOBALS["___mysqli_ston"],  $create_tb ) ) {
 				PushMessage( "Не удалось создать таблицу<br />SQL: " . ((is_object($GLOBALS["___mysqli_ston"])) ? mysqli_error($GLOBALS["___mysqli_ston"]) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)) );
 				ReloadPage();
@@ -48,12 +53,17 @@
 			PushMessage( "Таблица пользователей создана." );
 
 
+
+
+			# TODO поле для значений токена
+
+
 			# Внесение данных в таблицу
 			$avatarUrl  = 'includes/users/';
 
 			$insert = "INSERT INTO users VALUES
-				('1','admin','admin','admin',MD5('P@ssw0rd'),'{$avatarUrl}man.png', NOW(), '0'),
-				('2','Usual','Student','student',MD5('lovehomework'),'{$avatarUrl}boy.png', NOW(), '0');";
+				('1','admin','admin','admin',MD5('P@ssw0rd'),'{$avatarUrl}man.png', NOW(), '0','0', false),
+				('2','Usual','Student','student',MD5('lovehomework'),'{$avatarUrl}boy.png', NOW(), '0','0', false);";
 			if( !mysqli_query($GLOBALS["___mysqli_ston"],  $insert ) ) {
 				PushMessage( "Не удалось внести данные в таблицу пользователей<br />SQL: " . ((is_object($GLOBALS["___mysqli_ston"])) ? mysqli_error($GLOBALS["___mysqli_ston"]) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)) );
 				ReloadPage();

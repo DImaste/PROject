@@ -18,6 +18,9 @@ if( isset( $_POST[ 'Login' ] ) ) {
     $user = stripslashes( $user );
     $user = ((isset($GLOBALS["___mysqli_ston"]) && is_object($GLOBALS["___mysqli_ston"])) ? mysqli_real_escape_string($GLOBALS["___mysqli_ston"],  $user ) : ((trigger_error("[MySQLConverterToo] Fix the mysql_escape_string() call! This code does not work.", E_USER_ERROR)) ? "" : ""));
 
+    global $sessionuser;
+    $sessionuser = $user;
+
     $pass = $_POST[ 'password' ];
     $pass = stripslashes( $pass );
     $pass = ((isset($GLOBALS["___mysqli_ston"]) && is_object($GLOBALS["___mysqli_ston"])) ? mysqli_real_escape_string($GLOBALS["___mysqli_ston"],  $pass ) : ((trigger_error("[MySQLConverterToo] Fix the mysql_escape_string() call! This code does not work.", E_USER_ERROR)) ? "" : ""));
@@ -36,8 +39,17 @@ if( isset( $_POST[ 'Login' ] ) ) {
     $query  = "SELECT * FROM `users` WHERE user='$user' AND password='$pass';";
     $result = @mysqli_query($GLOBALS["___mysqli_ston"],  $query ) or die( '<pre>' . ((is_object($GLOBALS["___mysqli_ston"])) ? mysqli_error($GLOBALS["___mysqli_ston"]) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)) . '.<br />Попробуйте <a href="setup.php">переустановить приложение!</a>.</pre>' );
     if( $result && mysqli_num_rows( $result ) == 1 ) {    # Успешная авторизация
-        PushMessage( "You have logged in as '{$user}'" );
+        PushMessage( "Вы уже авторизованы как '{$user}'" );
         Login( $user );
+
+        $insert = "UPDATE `users` SET active=true WHERE user='$user'";
+        if( !mysqli_query($GLOBALS["___mysqli_ston"],  $insert ) ) {
+            PushMessage( "Не удалось активировать пользователя<br />SQL: " . ((is_object($GLOBALS["___mysqli_ston"])) ? mysqli_error($GLOBALS["___mysqli_ston"]) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)) ); }
+
+
+
+
+
         RedirectTo( root_page . 'index.php' );
     }
 
@@ -55,6 +67,8 @@ Header( 'Content-Type: text/html;charset=utf-8' );
 # Защита от CSRF
 generateSessionToken();
 
+# TODO если человек авторизован, то не показывать форму
+
 
 echo "
 
@@ -66,7 +80,7 @@ echo "
     <meta charset=\"UTF-8\">
 	<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">
 	<link rel=\"profile\" href=\"http://gmpg.org/xfn/11\">
-	<title>Уязвимое веб-приложение!</title>
+	<title>Авторизация</title>
 <link rel='dns-prefetch' href='http://fonts.googleapis.com/' />
 <link rel='dns-prefetch' href='http://s.w.org/' />
 <link rel=\"alternate\" type=\"application/rss+xml\" title=\" &raquo; Feed\" href=\"feed/index.html\" />
@@ -218,6 +232,13 @@ img.emoji {
         </div>
     </header>
 
+<br />  
+  
+	<h3> {$messagesHtml}  </h3> 
+	
+	
+	
+	
 	
 		<div class=\"elementor elementor-2\">
 			<div class=\"elementor-inner\">
@@ -253,17 +274,25 @@ img.emoji {
 					<div class=\"elementor-widget-wrap\">
 				<div data-id=\"ec2ab49\" class=\"elementor-element elementor-element-ec2ab49 animated fadeInDown elementor-button-align-stretch elementor-invisible elementor-widget elementor-widget-login\" data-settings=\"{&quot;_animation&quot;:&quot;fadeInDown&quot;}\" data-element_type=\"login.default\">
 				<div class=\"elementor-widget-container\">
-					<form class=\"elementor-login elementor-form\" method=\"post\" action=\"http://localhost/wordpress/wp-login.php\">
-			<input type=\"hidden\" name=\"redirect_to\" value=\"/wordpress/\">
+				
+				
+				
+					<form class=\"elementor-login elementor-form\" method=\"post\" action=\"login.php\">
+			<input type=\"hidden\" name=\"redirect_to\" value=\"myprofile.php/\">
 			<div class=\"elementor-form-fields-wrapper\">
 				<div class=\"elementor-field-type-text elementor-field-group elementor-column elementor-col-100 elementor-field-required\">
-					<label for=\"user\"></label><input size=\"1\" type=\"text\" name=\"log\" id=\"user\" placeholder=\"Имя пользователя\" class=\"elementor-field elementor-field-textual elementor-size-lg\">				</div>
+					<label for=\"user\"></label><input size=\"1\" type=\"text\" name=\"username\" id=\"user\" placeholder=\"Имя пользователя\" class=\"elementor-field elementor-field-textual elementor-size-lg\">				</div>
 				<div class=\"elementor-field-type-text elementor-field-group elementor-column elementor-col-100 elementor-field-required\">
-					<label ></label><input size=\"1\" type=\"password\" name=\"pwd\" id=\"password\" placeholder=\"Пароль\" class=\"elementor-field elementor-field-textual elementor-size-lg\">				</div>
-
+					<label ></label><input size=\"1\" type=\"password\" name=\"password\" id=\"password\" placeholder=\"Пароль\" AUTOCOMPLETE=\"off\" class=\"elementor-field elementor-field-textual elementor-size-lg\">
+									
+									 " . tokenField() . "    
+									</div>
+			
+			
+				<!-- BUTTONS -->
 								
 				<div class=\"elementor-field-group elementor-column elementor-field-type-submit elementor-col-100\">
-					<button type=\"submit\" class=\"elementor-size-sm elementor-button\" name=\"wp-submit\">
+					<button type=\"submit\" class=\"elementor-size-sm elementor-button\" name=\"Login\">
 															<span class=\"elementor-button-text\">Авторизация</span>
 												</button>
 				</div>
@@ -272,10 +301,14 @@ img.emoji {
 		</form>
 				</div>
 				</div>
-				<div data-id=\"2b5e9a6\" class=\"elementor-element elementor-element-2b5e9a6 elementor-align-right elementor-widget elementor-widget-button\" data-element_type=\"button.default\">
+                
+               
+                    
+                <div data-id=\"2b5e9a6\" class=\"elementor-element elementor-element-2b5e9a6 elementor-align-right elementor-widget elementor-widget-button\" data-element_type=\"button.default\">    
+				
 				<div class=\"elementor-widget-container\">
 					<div class=\"elementor-button-wrapper\">
-			<a href=\"my-profile/index.html\" class=\"elementor-button-link elementor-button elementor-size-sm\" role=\"button\">
+			<a href=\"myprofile.php\" class=\"elementor-button-link elementor-button elementor-size-sm\" role=\"button\">
 						<span class=\"elementor-button-content-wrapper\">
 						<span class=\"elementor-button-text\">Личный профиль</span>
 		</span>
@@ -286,7 +319,7 @@ img.emoji {
 				<div data-id=\"2fec8ec\" class=\"elementor-element elementor-element-2fec8ec elementor-align-left elementor-widget elementor-widget-button\" data-element_type=\"button.default\">
 				<div class=\"elementor-widget-container\">
 					<div class=\"elementor-button-wrapper\">
-			<a href=\"wp-login2f61.html?action=logout&amp;redirect_to=%2Fwordpress%2F&amp;_wpnonce=a8bce94384\" class=\"elementor-button-link elementor-button elementor-size-sm\" role=\"button\">
+			<a href=\"logout.php\" class=\"elementor-button-link elementor-button elementor-size-sm\" role=\"button\">
 						<span class=\"elementor-button-content-wrapper\">
 						<span class=\"elementor-button-text\">Выйти из системы</span>
 		</span>
@@ -330,7 +363,7 @@ img.emoji {
 				<div data-id=\"64d1202\" class=\"elementor-element elementor-element-64d1202 elementor-button-warning elementor-align-center elementor-widget elementor-widget-button\" data-element_type=\"button.default\">
 				<div class=\"elementor-widget-container\">
 					<div class=\"elementor-button-wrapper\">
-			<a href=\"#\" class=\"elementor-button-link elementor-button elementor-size-md\" role=\"button\">
+			<a href=\"registration.php\" class=\"elementor-button-link elementor-button elementor-size-md\" role=\"button\">
 						<span class=\"elementor-button-content-wrapper\">
 						<span class=\"elementor-button-text\">Зарегистрироваться</span>
 		</span>
@@ -344,6 +377,10 @@ img.emoji {
 						</div>
 			</div>
 		</section>
+		
+		
+		
+		
 				<section data-id=\"e1a08c7\" class=\"elementor-element elementor-element-e1a08c7 elementor-section-boxed elementor-section-height-default elementor-section-height-default elementor-section elementor-top-section\" data-element_type=\"section\">
 						<div class=\"elementor-container elementor-column-gap-default\">
 				<div class=\"elementor-row\">
@@ -368,22 +405,26 @@ img.emoji {
 		</div>
 		  
    </div>  
+   
+   <br />
+
+	
+
+	<br />
 
     <!--Footer component-->
     <section id=\"footer\" class=\"jr-site-footer\"><!--Now active fixed footer-->
-       <!--  <div class=\"container-large\">
-
-                            
-                
-        </div>
- -->
+      
         <div class=\"copyright-bottom\">
         Copyright Pavlukhin Dmitry. All rights reserved.  
         <span> | </span>     
-        Powered by <a target=\"_blank\" rel=\"designer\" href=\"mailto:pavluhin_dima@mail.ru\">Pavlukhin Dmitry</a>     
+        Powered by <a target=\"_blank\" rel=\"designer\" href=\"mailto:pavluhin_dima@mail.ru\">Pavlukhin Dmitry</a>  
         </div>
     </section>
+    
     <!--Ends-->
+      
+      
       
 <script type='text/javascript' src='includes/themes/elemento/assets/js/bootstrap.min4a7d.js?ver=20151215'></script>
 <script type='text/javascript' src='includes/themes/elemento/assets/js/flexslider.min4a7d.js?ver=20151215'></script>
@@ -392,9 +433,7 @@ img.emoji {
 <script type='text/javascript' src='includes/js/wp-embed.min5010.js?ver=4.9.8'></script>
 <script type='text/javascript' src='includes/plugins/elementor-pro/assets/lib/sticky/jquery.sticky.mincc91.js?ver=2.1.8'></script>
 <script type='text/javascript'>
-/* <![CDATA[ */
-var ElementorProFrontendConfig = {\"ajaxurl\":\"http:\/\/localhost\/wordpress\/wp-admin\/admin-ajax.php\",\"nonce\":\"fbc4556348\",\"shareButtonsNetworks\":{\"facebook\":{\"title\":\"Facebook\",\"has_counter\":true},\"twitter\":{\"title\":\"Twitter\"},\"google\":{\"title\":\"Google+\",\"has_counter\":true},\"linkedin\":{\"title\":\"LinkedIn\",\"has_counter\":true},\"pinterest\":{\"title\":\"Pinterest\",\"has_counter\":true},\"reddit\":{\"title\":\"Reddit\",\"has_counter\":true},\"vk\":{\"title\":\"VK\",\"has_counter\":true},\"odnoklassniki\":{\"title\":\"OK\",\"has_counter\":true},\"tumblr\":{\"title\":\"Tumblr\"},\"delicious\":{\"title\":\"Delicious\"},\"digg\":{\"title\":\"Digg\"},\"skype\":{\"title\":\"Skype\"},\"stumbleupon\":{\"title\":\"StumbleUpon\",\"has_counter\":true},\"telegram\":{\"title\":\"Telegram\"},\"pocket\":{\"title\":\"Pocket\",\"has_counter\":true},\"xing\":{\"title\":\"XING\",\"has_counter\":true},\"whatsapp\":{\"title\":\"WhatsApp\"},\"email\":{\"title\":\"Email\"},\"print\":{\"title\":\"Print\"}},\"facebook_sdk\":{\"lang\":\"en_US\",\"app_id\":\"\"}};
-/* ]]> */
+
 </script>
 <script type='text/javascript' src='includes/plugins/elementor-pro/assets/js/frontend.mincc91.js?ver=2.1.8'></script>
 <script type='text/javascript' src='includes/js/jquery/ui/position.mine899.js?ver=1.11.4'></script>
@@ -402,15 +441,19 @@ var ElementorProFrontendConfig = {\"ajaxurl\":\"http:\/\/localhost\/wordpress\/w
 <script type='text/javascript' src='includes/plugins/elementor/assets/lib/waypoints/waypoints.min05da.js?ver=4.0.2'></script>
 <script type='text/javascript' src='includes/plugins/elementor/assets/lib/swiper/swiper.jquery.mincb20.js?ver=4.4.3'></script>
 <script type='text/javascript'>
+
+<!-- TEST! MAY AFFECT FUNCTION -->
+
 /* <![CDATA[ */
 var elementorFrontendConfig = {\"isEditMode\":\"\",\"is_rtl\":\"\",\"breakpoints\":{\"xs\":0,\"sm\":480,\"md\":768,\"lg\":1025,\"xl\":1440,\"xxl\":1600},\"version\":\"2.2.6\",\"urls\":{\"assets\":\"http:\/\/localhost\/wordpress\/includes\/plugins\/elementor\/assets\/\"},\"settings\":{\"page\":[],\"general\":{\"elementor_global_image_lightbox\":\"yes\",\"elementor_enable_lightbox_in_editor\":\"yes\"}},\"post\":{\"id\":2,\"title\":\"\u041f\u0440\u0438\u0432\u0435\u0442\u0441\u0442\u0432\u0438\u0435\",\"excerpt\":\"\"}};
 /* ]]> */
 </script>
+
+
 <script type='text/javascript' src='includes/plugins/elementor/assets/js/frontend.mindbc2.js?ver=2.2.6'></script>
 
 </body>
 
-<!-- Mirrored from localhost/wordpress/ by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 24 Oct 2018 00:30:39 GMT -->
 </html>
 
 
