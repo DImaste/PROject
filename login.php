@@ -39,7 +39,7 @@ if( isset( $_POST[ 'Login' ] ) ) {
     $query  = "SELECT * FROM `users` WHERE user='$user' AND password='$pass';";
     $result = @mysqli_query($GLOBALS["___mysqli_ston"],  $query ) or die( '<pre>' . ((is_object($GLOBALS["___mysqli_ston"])) ? mysqli_error($GLOBALS["___mysqli_ston"]) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)) . '.<br />Попробуйте <a href="setup.php">переустановить приложение!</a>.</pre>' );
     if( $result && mysqli_num_rows( $result ) == 1 ) {    # Успешная авторизация
-        PushMessage( "Вы уже авторизованы как '{$user}'" );
+        PushMessage( "Вы авторизованы как '{$user}'" );
         Login( $user );
 
         $insert = "UPDATE `users` SET active=true WHERE user='$user'";

@@ -46,6 +46,7 @@ if( !isset( $html ) ) {
 $DBMS_errorFunc = '';
 
 $flags = array();
+refreshFlags();
 
 
 $sessionuser;
@@ -63,6 +64,11 @@ function PushMessage( $pMessage ) {
 	}
     $VulnWappSession[ 'messages' ][] = $pMessage;
 }
+
+
+
+
+
 
 function MessagePop() {
 	$VulnWappSession =& VulnWappSessionGet();
@@ -165,16 +171,20 @@ function generateFlag($length = 40){
 function refreshFlags()
 {
     global $flags;
-    for ($i =0; $i<=5; $i++)
+    for ($i =0; $i<5; $i++)
     {
         $flags[$i] = generateFlag();
+
         #print $flags[$i];
         #echo ' <br> ';
         #echo ' <h1> var_dump($flags[$i])  </h1>
+        #print $flags[$i];
 
+        #return $flags[$i];
 
 
     }
+    return $flags;
 }
 
 function getFlag($i){

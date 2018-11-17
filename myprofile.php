@@ -9,6 +9,8 @@ if( !IsLoggedIn() ) {
     RedirectTo( 'login.php' );
 }
 
+#global $flags;
+
 # TODO посмотреть как на уровне PHP прописать флаги в операционной системе
 
 
@@ -71,46 +73,53 @@ Header( 'Content-Type: text/html;charset=utf-8' );
 
 # TODO имя пользователя в заголовке - DONE
 
-# TODO действие на проверку - сравнение флага с имеющимися. Если да +20%, иначе - неверный флаг. Нужно прописать action?
+# TODO действие на проверку - сравнение флага с имеющимися. Если да +20%, иначе - неверный флаг. Нужно прописать action? - YEP
 
+# TODO Вставить флаги в код и проверять соответствие флагу
 
-if( isset( $_POST[ 'Check' ] ) ) {
+if( isset( $_POST[ 'Check' ] ) )
+{
 
-    # Защита от CSRF
-   # checkToken( $_REQUEST[ 'user_token' ], $_SESSION[ 'session_token' ], 'login.php' );
+    if (  $outPercent['percent'] != '100') {
 
-    $submitFlag = $_POST[ 'form_fields[message]' ];
+        # Защита от CSRF
+        # checkToken( $_REQUEST[ 'user_token' ], $_SESSION[ 'session_token' ], 'login.php' );
 
-    $outPercentOld = $outPercent;
+        $submitFlag = $_POST['key'];
 
-    for ($i=0;$i<5;$i++)
-    {
-        if($submitFlag==getFlag($i) )
-        {
-            $outPercent += 20;
+        $winvalue = $outPercent['percent'] + 20;
+
+        for ($i = 0; $i < 5; $i++) {
+            if ($submitFlag == '123') {
+                $insertpercent = "UPDATE `users` SET percent='$winvalue'  WHERE active=true";
+                if (!mysqli_query($GLOBALS["___mysqli_ston"], $insertpercent)) {
+                    PushMessage("Не удалось внести данные в таблицу<br />SQL: " . ((is_object($GLOBALS["___mysqli_ston"])) ? mysqli_error($GLOBALS["___mysqli_ston"]) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)));
+                }
+
+            }
+            echo getFlag($i);
+
         }
+
+        $percentOld  = ("SELECT percent FROM users where active=true");
+        $resultPercentOld = @mysqli_query($GLOBALS["___mysqli_ston"], $percentOld);
+        $outPercentOld = mysqli_fetch_array($resultPercentOld);
+
+        if ($outPercentOld['percent'] != $winvalue)
+            PushMessage('Неверный флаг, попробуйте поискать ещё!');
+        else PushMessage('Верно!');
+
+       # ReloadPage();
+    }
+    else
+    {
+        PushMessage('Всё флаги найдены, вы можете  завершить работу!');
     }
 
-    if ($outPercentOld == $outPercent)
-        PushMessage( 'Неверный флаг, попробуйте поискать ещё!' );
-
-    echo $submitFlag;
 }
 
 
 $messagesHtml = messagesPopAllToHtml();
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -330,7 +339,13 @@ img.emoji {
 				<div data-id="00c9b8b" class="elementor-element elementor-element-00c9b8b elementor-column elementor-col-100 elementor-top-column" data-element_type="column">
 			<div class="elementor-column-wrap elementor-element-populated">
 					<div class="elementor-widget-wrap">
-				<div data-id="e88096e" class="elementor-element elementor-element-e88096e elementor-button-align-stretch elementor-widget elementor-widget-form" data-element_type="form.default">
+					
+			<!--		
+				<div data-id="e88096e" class="elementor-element elementor-button-align-stretch elementor-widget elementor-widget-form" data-element_type="form.default">
+				-->
+				
+				<div data-id="ec2ab49" class="elementor-element elementor-element-ec2ab49 animated fadeInDown elementor-button-align-stretch elementor-invisible elementor-widget elementor-widget-login" data-settings="{&quot;_animation&quot;:&quot;fadeInDown&quot;}" data-element_type="login.default">
+				
 				<div class="elementor-widget-container">
 				
 				
@@ -354,15 +369,22 @@ img.emoji {
 		</form>
 		-->
 		
+		<!-- Поглядеть ID, попробовать экранировать символы -->
 		
-		
-		<form class="elementor-form" method="post" name="SubmitKey" action=\"myprofile.php\">
-			<input type="hidden" name="post_id" value="44"/>
-			<input type="hidden" name="form_id" value="e88096e"/>
+		<form class="elementor-login elementor-form" method="post" action="myprofile.php">
+			<!--<input type="hidden" name="post_id" value="44"/>
+			<input type="hidden" name="form_id" value="e88096e"/> 
+			<input type="hidden" name="redirect_to" value="myprofile.php"/> -->
 
-			<div class="elementor-form-fields-wrapper elementor-labels-above">
-								<div class="elementor-field-type-password elementor-field-group elementor-column elementor-field-group-message elementor-col-60 elementor-field-required">
-					<label for="form-field-message" class="elementor-field-label">Ключ</label><input size="1" name="form_fields[message]" id="form-field-message" class="elementor-field elementor-size-md  elementor-field-textual" placeholder="Введите ключ" required="required" aria-required="true">				</div>
+			<div class="elementor-form-fields-wrapper">
+								<div class="elementor-field-type-text elementor-field-group elementor-column elementor-col-60 elementor-field-required">
+					
+					<label for="form-field-message">Ключ</label>
+					    <input size="1" type="text" name="key" id="form-field-message"  class="elementor-field elementor-size-md  elementor-field-textual" placeholder="Введите ключ" required="required" aria-required="true">			
+					    	
+					    	' . tokenField() . ' 
+					    	
+					    	</div>
 								<div class="elementor-field-group elementor-column elementor-field-type-submit elementor-col-60">
 					<button type="submit" class="elementor-button elementor-size-sm" name="Check">
 						<span >
@@ -435,7 +457,7 @@ img.emoji {
 				</div>
 						</div>
 			</div>
-		</div>
+		</div> 
 						</div>
 			</div>
 		</section>
