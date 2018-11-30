@@ -45,7 +45,7 @@
 				ReloadPage();
 			}
 
-			$create_tb = "CREATE TABLE users (user_id int(6),first_name varchar(15),last_name varchar(15), user varchar(15), password varchar(32),avatar varchar(70), last_login TIMESTAMP, failed_login INT(3), PRIMARY KEY (user_id), percent int(6), active bool);";
+			$create_tb = "CREATE TABLE users (user_id int(6),first_name varchar(15),last_name varchar(15), user varchar(15), password varchar(32),avatar varchar(70), last_login TIMESTAMP, failed_login INT(3), PRIMARY KEY (user_id), percent int(6), active bool, flag1 bool, flag2 bool, flag3 bool, flag4 bool, flag5 bool);";
 			if( !mysqli_query($GLOBALS["___mysqli_ston"],  $create_tb ) ) {
 				PushMessage( "Не удалось создать таблицу<br />SQL: " . ((is_object($GLOBALS["___mysqli_ston"])) ? mysqli_error($GLOBALS["___mysqli_ston"]) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)) );
 				ReloadPage();
@@ -62,8 +62,8 @@
 			$avatarUrl  = 'includes/users/';
 
 			$insert = "INSERT INTO users VALUES
-				('1','admin','admin','admin',MD5('P@ssw0rd'),'{$avatarUrl}man.png', NOW(), '0','0', false),
-				('2','Usual','Student','student',MD5('lovehomework'),'{$avatarUrl}boy.png', NOW(), '0','0', false);";
+				('1','admin','admin','admin',MD5('P@ssw0rd'),'{$avatarUrl}man.png', NOW(), '0','0', false, false, false, false, false, false),
+				('2','Usual','Student','student',MD5('lovehomework'),'{$avatarUrl}boy.png', NOW(), '0','0', false, false, false, false, false, false);";
 			if( !mysqli_query($GLOBALS["___mysqli_ston"],  $insert ) ) {
 				PushMessage( "Не удалось внести данные в таблицу пользователей<br />SQL: " . ((is_object($GLOBALS["___mysqli_ston"])) ? mysqli_error($GLOBALS["___mysqli_ston"]) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)) );
 				ReloadPage();
@@ -72,21 +72,32 @@
 
 
 			# Создание таблицы для гостевой книги
-			$create_tb_guestbook = "CREATE TABLE guestbook (comment_id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT, comment varchar(300), name varchar(100), PRIMARY KEY (comment_id));";
-			if( !mysqli_query($GLOBALS["___mysqli_ston"],  $create_tb_guestbook ) ) {
+			$create_tb_flags = "CREATE TABLE flags (id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT, flag varchar(300), active bool, PRIMARY KEY (id));";
+			if( !mysqli_query($GLOBALS["___mysqli_ston"],  $create_tb_flags ) ) {
 				PushMessage( "Не удалось создать таблицу<br />SQL: " . ((is_object($GLOBALS["___mysqli_ston"])) ? mysqli_error($GLOBALS["___mysqli_ston"]) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)) );
 				ReloadPage();
 			}
-			PushMessage( "Таблица гостевой книги создана." );
+			PushMessage( "Таблица флагов создана." );
 
 
 			# Внесение данных в гостевую книгу
-			$insert = "INSERT INTO guestbook VALUES ('1','Привет, мир. Это тест.','test');";
-			if( !mysqli_query($GLOBALS["___mysqli_ston"],  $insert ) ) {
-				PushMessage( "Не удалось внести данные в таблицу гостевой книги<br />SQL: " . ((is_object($GLOBALS["___mysqli_ston"])) ? mysqli_error($GLOBALS["___mysqli_ston"]) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)) );
-				ReloadPage();
+
+		    for ($i=1; $i<6; $i++)
+            {
+                $ToInsert = getFlag($i-1);
+                $insert = "INSERT INTO flags VALUES ('{$i}','{$ToInsert}', false);";
+
+                if( !mysqli_query($GLOBALS["___mysqli_ston"],  $insert ) ) {
+                    PushMessage( "Не удалось внести данные в таблицу флагов<br />SQL: " . ((is_object($GLOBALS["___mysqli_ston"])) ? mysqli_error($GLOBALS["___mysqli_ston"]) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)) );
+
+            };
+
+
+			#$insert = "INSERT INTO flags VALUES ('1','Привет, мир. Это тест.','test');";
+
+				#ReloadPage();
 			}
-			PushMessage( "Данные внесены в таблицу гостевой книги." );
+			PushMessage( "Данные внесены в таблицу флагов" );
 
 			# Создание резерного файла конфигурации
 			$conf = root_page . 'config/DBconfig.php';

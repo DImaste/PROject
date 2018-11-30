@@ -18,9 +18,6 @@ if( isset( $_POST[ 'Login' ] ) ) {
     $user = stripslashes( $user );
     $user = ((isset($GLOBALS["___mysqli_ston"]) && is_object($GLOBALS["___mysqli_ston"])) ? mysqli_real_escape_string($GLOBALS["___mysqli_ston"],  $user ) : ((trigger_error("[MySQLConverterToo] Fix the mysql_escape_string() call! This code does not work.", E_USER_ERROR)) ? "" : ""));
 
-    global $sessionuser;
-    $sessionuser = $user;
-
     $pass = $_POST[ 'password' ];
     $pass = stripslashes( $pass );
     $pass = ((isset($GLOBALS["___mysqli_ston"]) && is_object($GLOBALS["___mysqli_ston"])) ? mysqli_real_escape_string($GLOBALS["___mysqli_ston"],  $pass ) : ((trigger_error("[MySQLConverterToo] Fix the mysql_escape_string() call! This code does not work.", E_USER_ERROR)) ? "" : ""));
@@ -44,7 +41,46 @@ if( isset( $_POST[ 'Login' ] ) ) {
 
         $insert = "UPDATE `users` SET active=true WHERE user='$user'";
         if( !mysqli_query($GLOBALS["___mysqli_ston"],  $insert ) ) {
-            PushMessage( "Не удалось активировать пользователя<br />SQL: " . ((is_object($GLOBALS["___mysqli_ston"])) ? mysqli_error($GLOBALS["___mysqli_ston"]) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)) ); }
+            PushMessage( "Не удалось активировать пользователя<br />SQL: " . ((is_object($GLOBALS["___mysqli_ston"])) ? mysqli_error($GLOBALS["___mysqli_ston"]) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)) ); };
+
+
+
+        for ($i=1; $i<6; $i++) {
+
+            #refresh flags
+            $ToInsert = getFlag($i - 1);
+            $insert = "UPDATE flags SET flag='{$ToInsert}' WHERE id='{$i}';";
+            $cancelActive = "UPDATE flags SET active=false WHERE id='{$i}';";
+
+            if (!mysqli_query($GLOBALS["___mysqli_ston"], $insert)) {
+                PushMessage("Не удалось внести данные в таблицу флагов<br />SQL: " . ((is_object($GLOBALS["___mysqli_ston"])) ? mysqli_error($GLOBALS["___mysqli_ston"]) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)));
+            };
+
+            if (!mysqli_query($GLOBALS["___mysqli_ston"], $cancelActive)) {
+                PushMessage("Не удалось внести данные в таблицу флагов<br />SQL: " . ((is_object($GLOBALS["___mysqli_ston"])) ? mysqli_error($GLOBALS["___mysqli_ston"]) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)));
+            };
+
+            #remind active flags
+            $flagPermanentName = "flag";
+            $flagCurrentName= $flagPermanentName.$i;
+
+            $selectActiveFlags  = "SELECT $flagCurrentName FROM `users` WHERE user='$user' AND password='$pass';";
+
+            $resultActiveFlags = @mysqli_query($GLOBALS["___mysqli_ston"], $selectActiveFlags);
+            $outActiveFlags = mysqli_fetch_array($resultActiveFlags);
+
+            if ($outActiveFlags[$flagCurrentName]==true)
+            {
+                $setActive = "UPDATE flags SET active=true WHERE id='{$i}';";
+
+                if (!mysqli_query($GLOBALS["___mysqli_ston"], $setActive)) {
+                    PushMessage("Не удалось внести данные в таблицу флагов<br />SQL: " . ((is_object($GLOBALS["___mysqli_ston"])) ? mysqli_error($GLOBALS["___mysqli_ston"]) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)));
+                };
+
+            }
+
+
+        }
 
 
 
@@ -272,6 +308,8 @@ img.emoji {
 				<div data-id=\"ad6ef84\" class=\"elementor-element elementor-element-ad6ef84 elementor-column elementor-col-100 elementor-top-column\" data-element_type=\"column\">
 			<div class=\"elementor-column-wrap elementor-element-populated\">
 					<div class=\"elementor-widget-wrap\">
+					
+					
 				<div data-id=\"ec2ab49\" class=\"elementor-element elementor-element-ec2ab49 animated fadeInDown elementor-button-align-stretch elementor-invisible elementor-widget elementor-widget-login\" data-settings=\"{&quot;_animation&quot;:&quot;fadeInDown&quot;}\" data-element_type=\"login.default\">
 				<div class=\"elementor-widget-container\">
 				

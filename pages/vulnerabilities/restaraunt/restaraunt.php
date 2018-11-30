@@ -1,6 +1,8 @@
 <?php
 
-
+##
+## Уязвимый сайт ресторана
+##
 
 define( 'root_page', '' );
 require_once root_page . '../../../functions.php';
@@ -11,11 +13,88 @@ if( !IsLoggedIn() ) {
     RedirectTo( 'login.php' );
 }
 
-$reserve_default="week";
+
+DatabaseConnect();
+
+$query = ("SELECT table_schema, table_name, create_time
+				FROM information_schema.tables
+				WHERE table_schema='{$_VulnWapp['db_database']}' AND table_name='users'
+				LIMIT 1");
+$result = @mysqli_query($GLOBALS["___mysqli_ston"],  $query );
+if( mysqli_num_rows( $result ) != 1 ) {
+    PushMessage( "В первый раз используете приложение?<br />Переход к установке - 'setup.php'." );
+    RedirectTo( root_page . 'setup.php' );
+}
+
+
+
+for ($i = 0; $i < 5; $i++) {
+
+    $Increment = $i+1;
+    $queryFlags = ("SELECT flag FROM flags where id='{$Increment}'");
+    $resultFlags = @mysqli_query($GLOBALS["___mysqli_ston"], $queryFlags);
+    $outFlags = mysqli_fetch_array($resultFlags);
+    $Checkflags[$i]= $outFlags['flag'];
+
+    #echo $Checkflags [$i];
+    #echo '<br/>';
+}
+
+#----------------------------
+
+if (isset($_GET['page']) && ($_GET['page'])=="chief"){
+    $chiefPage = file_get_contents('chief.php');
+    echo($Checkflags[3]);
+    echo($chiefPage)  ;
+
+    exit();
+}
+
+
+file_put_contents('temp/plan.txt', '');
+file_put_contents('temp/plan.txt', 'Riarden Restaraunt develpoing plan.    
+ ------------------------------------------------------  
+      If you want to talk with Riarden, leave him a message in Chiefs feedback form. Just put the Message "ToGRearden"   
+ ------------------------------------------------------ 
+
+          We are planning to be the best. 
+          '.$Checkflags[1].'
+          Have a good day! 
+          ');
+
+
+
+$reserve_default="weeks";
 
 setcookie("reserve", $reserve_default);
 
-#TODO Home button, Алерт скрытие и появление, дейстивие на бронирование стола, футер и так далее
+if( isset( $_POST[ 'Reserve' ] ) ) {
+
+    if ($_COOKIE['reserve']=="tonight" && $_POST['Guest_name']!="JOHNGALT")
+    {
+        echo '<script>alert("Поздравляем столик зарезервирован на сегодняшний вечер!    " +
+        "'.$Checkflags[0].'")</script>
+        ';
+    }
+
+    if ($_COOKIE['reserve']=="weeks" && $_POST['Guest_name']!="JOHNGALT")
+    {
+        echo '<script>alert("Поздравляем столик зарезервирован через две недели!")</script>';
+    }
+
+    if ($_POST['Guest_name']=="JOHNGALT")
+    {
+        echo '<script>alert("Джон, добрый день! Ваш VIP столик свободен! Ждём вас в любое время!    " +
+        "'.$Checkflags[4].'")</script>
+        ';
+
+    }
+
+
+
+}
+
+#TODO Home button, Алерт скрытие и появление, дейстивие на бронирование стола, футер и так далее DONE
 
 
 echo '
@@ -607,6 +686,9 @@ img.emoji {
 						</div>
 			</div>
 		</section>
+		
+		<!-- JOHNGALT says check the website security! Who is JOHNGALT? -->
+		
 				<section data-id="7ba13608" class="elementor-element elementor-element-7ba13608 elementor-section-content-middle elementor-section-boxed elementor-section-height-default elementor-section-height-default elementor-section elementor-top-section" data-settings="{&quot;background_background&quot;:&quot;classic&quot;}" data-element_type="section">
 							<div class="elementor-background-overlay"></div>
 							<div class="elementor-container elementor-column-gap-no">
@@ -703,92 +785,60 @@ img.emoji {
 						</div>
 			</div>
 		</div>
+		
+		
+		
+		
 				<div data-id="77409d7e" class="elementor-element elementor-element-77409d7e elementor-column elementor-col-50 elementor-top-column" data-element_type="column">
 			<div class="elementor-column-wrap elementor-element-populated">
+					
+					
 					<div class="elementor-widget-wrap">
 				<div data-id="8d5dfc3" class="elementor-element elementor-element-8d5dfc3 elementor-widget elementor-widget-alert" data-element_type="alert.default">
+				
+				
 				<div class="elementor-widget-container">
 				
 				
-				
-				
-				
-				
-				<!--
-					<div id="alert_title" class="elementor-alert elementor-alert-info" role="alert">
-			<span id="alert_title1" class="elementor-alert-title">This is an Alert</span>
-							<span id="alert_description" class="elementor-alert-description">I am a description. Click the edit button to change this text.</span>
-										<button type="button" class="elementor-alert-dismiss">
-					<span aria-hidden="true">&times;</span>
-					<span class="elementor-screen-only">Dismiss alert</span>
-				</button>
-					</div>	
-				</div>
-				</div>
-				
-				-->
-				
-				
-				
-				
-				<div data-id="278c91a4" class="elementor-element elementor-element-278c91a4 elementor-button-align-center elementor-widget elementor-widget-form" data-element_type="form.default">
+				<div data-id="ec2ab49" class="elementor-element elementor-element-ec2ab49 animated fadeInDown elementor-button-align-center elementor-invisible elementor-widget elementor-widget-form  elementor-widget-login" data-settings="{&quot;_animation&quot;:&quot;fadeInDown&quot;}" data-element_type="login.default">
 				
 					<div class="elementor-widget-container">
-					
-					
-					<!--
-					
-					<form class="elementor-form" method="post" id="get_table" name="reservation">
-			<input type="hidden" name="redirect_to" value="checkform.php/">
-			<input type="hidden" name="post_id" value="64"/>
-			<input type="hidden" name="form_id" value="a73bb8c"/>
+						
+						
+						
+						
+			<form class="elementor-login elementor-form" method="post" action="restaraunt.php">
 
 			<div class="elementor-form-fields-wrapper elementor-labels-">
-								<div class="elementor-field-type-text">
-					<input size="1" type="text" name="form_fields[field_2]" id="form-field-field_2" class="elementor-field elementor-size-sm " style="display:none !important;">				</div>
+				
 								<div class="elementor-field-type-text elementor-field-group elementor-column elementor-field-group-name elementor-col-100 elementor-field-required">
-					<label for="form-field-name" class="elementor-field-label elementor-screen-only">Name</label><input size="1" type="text" name="form_fields[name]" id="form-field-name" class="elementor-field elementor-size-sm  elementor-field-textual" placeholder="Ваше имя" required="required" aria-required="true">				</div>
+					<label for="form-field-name" class="elementor-field-label elementor-screen-only">Name</label><input size="1" type="text" name="Guest_name" id="form-field-name" class="elementor-field elementor-size-sm  elementor-field-textual" placeholder="Ваше имя" required="required" aria-required="true">				</div>
+					
+					<br/>
+					
 								<div class="elementor-field-type-number elementor-field-group elementor-column elementor-field-group-field_1 elementor-col-100 elementor-field-required">
-					<label for="form-field-field_1" class="elementor-field-label elementor-screen-only">Guests</label><input type="number" name="form_fields[field_1]" id="form-field-field_1" class="elementor-field elementor-size-sm  elementor-field-textual" placeholder="Количество гостей" required="required" aria-required="true" min="" max="">				</div>
+					<label for="form-field-field_1" class="elementor-field-label elementor-screen-only">Guests</label><input type="number" name="Guest_num" id="form-field-field_1" class="elementor-field elementor-size-sm  elementor-field-textual" placeholder="Количество гостей" required="required" aria-required="true" min="1" max="7">				</div>
+					
+					
 								<div class="elementor-field-group elementor-column elementor-field-type-submit elementor-col-100">
-					<button type="submit" class="elementor-button elementor-size-sm elementor-animation-grow">
+					<button type="submit" class="elementor-button elementor-size-sm elementor-animation-grow" id="check" name="Reserve">
 						<span >
 																						<span class="elementor-button-text">Зарезервировать</span>
 													</span>
 					</button>
-					
-					-->
-					
-					<form class="elementor-form" method="post" id="get_table" name="reservation">
-			<input type="hidden" name="redirect_to" value="checkform.php/">
-			<input type="hidden" name="post_id" value="64"/>
-			<input type="hidden" name="form_id" value="278c91a4"/>
-			
-
-			<div class="elementor-form-fields-wrapper elementor-labels-">
-								<div class="elementor-field-type-text">
-					<input size="1" type="text" name="form_fields[field_2]" id="form-field-field_2" class="elementor-field elementor-size-sm " style="display:none !important;">				</div>
-								<div class="elementor-field-type-text elementor-field-group elementor-column elementor-field-group-name elementor-col-100 elementor-field-required">
-					<label for="form-field-name" class="elementor-field-label elementor-screen-only">Name</label><input size="1" type="text" name="form_fields[name]" id="form-field-name" class="elementor-field elementor-size-sm  elementor-field-textual" placeholder="Ваше имя" required="required" aria-required="true">				</div>
-								<div class="elementor-field-type-number elementor-field-group elementor-column elementor-field-group-field_1 elementor-col-100 elementor-field-required">
-					<label for="form-field-field_1" class="elementor-field-label elementor-screen-only">Guests</label><input type="number" name="form_fields[field_1]" id="form-field-field_1" class="elementor-field elementor-size-sm  elementor-field-textual" placeholder="Количество гостей" required="required" aria-required="true" min="" max="">				</div>
-								<div class="elementor-field-group elementor-column elementor-field-type-submit elementor-col-100">
-					<button type="submit" class="elementor-button elementor-size-sm elementor-animation-grow" id="check">
-						<span >
-																						<span class="elementor-button-text">Зарезервировать</span>
-													</span>
-					</button>
-					
-					
-					
-					
-					
-					
-					
 					
 				</div>
 			</div>
 		</form>
+		
+		
+		
+		
+		
+		
+		
+		
+		
 				</div>
 				</div>
 						</div>
@@ -865,12 +915,7 @@ img.emoji {
 		
 		 <!--Footer component-->
     <section id="footer" class="jr-site-footer"><!--Now active fixed footer-->
-       <!--  <div class="container-large">
 
-                            
-                
-        </div>
- -->
         <div class="copyright-bottom">
         Copyright Pavlukhin Dmitry. All rights reserved.  
         <span> | </span>     

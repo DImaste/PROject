@@ -9,7 +9,9 @@ if( !IsLoggedIn() ) {
     RedirectTo( 'login.php' );
 }
 
-#global $flags;
+#ReloadPage();
+
+# TODO возможность сбросить результат?
 
 # TODO посмотреть как на уровне PHP прописать флаги в операционной системе
 
@@ -31,51 +33,24 @@ if( mysqli_num_rows( $result ) != 1 ) {
     RedirectTo( root_page . 'setup.php' );
 }
 
-
 $percent  = ("SELECT percent FROM users where active=true");
 $current_user = ("SELECT user FROM users where active=true");
 
 $resultPercent = @mysqli_query($GLOBALS["___mysqli_ston"], $percent);
 $resultUser = @mysqli_query($GLOBALS["___mysqli_ston"], $current_user);
 
-# TODO echo current_field - DONE
-
-#$percent = ("SELECT percent FROM users WHERE current_user");
-
-#$row = $result1->fetch_array(MYSQLI_ASSOC);
-#printf ("%s (%s)\n", $row["percent"], $row["CountryCode"]);
-
-#$percent =
-
-#echo $GLOBALS['$sessionuser'];;
-
-#ob_start();
-#var_dump($result1->current_field);
-#$result1 = ob_get_clean();
-
-#$row = $resultUser->fetch_array(MYSQLI_BOTH);
-#echo $row[0];
-
 $outUser = mysqli_fetch_array($resultUser);
-#echo $outUser['user'];
 $outPercent = mysqli_fetch_array($resultPercent);
-#echo $outPercent['percent'];
-
-
-#$outPercent = var_export($resultPercent->current_field, true);
-#$outUser = var_export($resultUser->current_field, true);
-
-#print_r($outUser);
-
 
 
 Header( 'Content-Type: text/html;charset=utf-8' );
 
-# TODO имя пользователя в заголовке - DONE
-
-# TODO действие на проверку - сравнение флага с имеющимися. Если да +20%, иначе - неверный флаг. Нужно прописать action? - YEP
-
 # TODO Вставить флаги в код и проверять соответствие флагу
+
+$Checkflags = array();
+
+
+# TODO CSRF Defence
 
 if( isset( $_POST[ 'Check' ] ) )
 {
@@ -90,26 +65,69 @@ if( isset( $_POST[ 'Check' ] ) )
         $winvalue = $outPercent['percent'] + 20;
 
         for ($i = 0; $i < 5; $i++) {
-            if ($submitFlag == '123') {
+
+            $Increment = $i + 1;
+            $queryFlags = ("SELECT flag FROM flags where id='{$Increment}' AND active=false ");
+            $resultFlags = @mysqli_query($GLOBALS["___mysqli_ston"], $queryFlags);
+            $outFlags = mysqli_fetch_array($resultFlags);
+            $Checkflags[$i] = $outFlags['flag'];
+
+            #echo $Checkflags [$i];
+            #echo '<br/>';
+
+            $flagPermanentName = "flag";
+            $flagCurrentName= $flagPermanentName.$Increment;
+
+            #echo $flagCurrentName;
+            #echo '<br/>';
+
+            if ($submitFlag == $Checkflags[$i]) {
+
+                #echo $Increment;
+                #echo '<br/>';
+
                 $insertpercent = "UPDATE `users` SET percent='$winvalue'  WHERE active=true";
                 if (!mysqli_query($GLOBALS["___mysqli_ston"], $insertpercent)) {
                     PushMessage("Не удалось внести данные в таблицу<br />SQL: " . ((is_object($GLOBALS["___mysqli_ston"])) ? mysqli_error($GLOBALS["___mysqli_ston"]) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)));
                 }
 
+
+                $flagChangeState = "UPDATE `flags` SET `active`=true WHERE `id`='$Increment'";
+                if (!mysqli_query($GLOBALS["___mysqli_ston"], $flagChangeState)) {
+                    PushMessage("Не удалось внести данные в таблицу<br />SQL: " . ((is_object($GLOBALS["___mysqli_ston"])) ? mysqli_error($GLOBALS["___mysqli_ston"]) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)));
+
+                }
+
+
+                $insertActiveflag = "UPDATE `users` SET $flagCurrentName=true  WHERE active=true";
+                if (!mysqli_query($GLOBALS["___mysqli_ston"], $insertActiveflag)) {
+                    PushMessage("Не удалось внести данные в таблицу<br />SQL: " . ((is_object($GLOBALS["___mysqli_ston"])) ? mysqli_error($GLOBALS["___mysqli_ston"]) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)));
+
+                }
+
+                #echo getFlag($i);
+
             }
-            echo getFlag($i);
 
+
+            #echo $Checkflags [$i];
+            #echo '<br/>';
         }
+            $percentOld = ("SELECT percent FROM users where active=true");
+            $resultPercentOld = @mysqli_query($GLOBALS["___mysqli_ston"], $percentOld);
+            $outPercentOld = mysqli_fetch_array($resultPercentOld);
 
-        $percentOld  = ("SELECT percent FROM users where active=true");
-        $resultPercentOld = @mysqli_query($GLOBALS["___mysqli_ston"], $percentOld);
-        $outPercentOld = mysqli_fetch_array($resultPercentOld);
+            if ($outPercentOld['percent'] != $winvalue)
+                PushMessage('Неверный флаг, попробуйте поискать ещё!');
+            else {
+                PushMessage('Верно!          <a href=\'myprofile.php\'>Обновить результат!</a>');
 
-        if ($outPercentOld['percent'] != $winvalue)
-            PushMessage('Неверный флаг, попробуйте поискать ещё!');
-        else PushMessage('Верно!');
+            }
 
-       # ReloadPage();
+            # sleep(3);
+
+            #header("Location: myprofile.php");
+
     }
     else
     {
@@ -118,10 +136,7 @@ if( isset( $_POST[ 'Check' ] ) )
 
 }
 
-
 $messagesHtml = messagesPopAllToHtml();
-
-
 
 echo '
 
@@ -340,41 +355,12 @@ img.emoji {
 			<div class="elementor-column-wrap elementor-element-populated">
 					<div class="elementor-widget-wrap">
 					
-			<!--		
-				<div data-id="e88096e" class="elementor-element elementor-button-align-stretch elementor-widget elementor-widget-form" data-element_type="form.default">
-				-->
 				
 				<div data-id="ec2ab49" class="elementor-element elementor-element-ec2ab49 animated fadeInDown elementor-button-align-stretch elementor-invisible elementor-widget elementor-widget-login" data-settings="{&quot;_animation&quot;:&quot;fadeInDown&quot;}" data-element_type="login.default">
 				
 				<div class="elementor-widget-container">
-				
-				
-				
-				<!--
-					<form class="elementor-form" method="post" name="SubmitKey" action=\"myprofile.php\ >
-			<input type="hidden" name="post_id" value="44"/>
-			<input type="hidden" name="form_id" value="e88096e"/>
-
-			<div class="elementor-form-fields-wrapper elementor-labels-above">
-								<div class="elementor-field-type-password elementor-field-group elementor-column elementor-field-group-message elementor-col-60 elementor-field-required">
-					<label for="form-field-message" class="elementor-field-label">Ключ</label><input size="1"  name="checkKey" id="form-field-message" class="elementor-field elementor-size-md  elementor-field-textual" placeholder="Введите ключ" required="required" aria-required="true">				</div>
-								<div class="elementor-field-group elementor-column elementor-field-type-submit elementor-col-60">
-					<button type="submit" class="elementor-button elementor-size-sm" name="Check">
-						<span >
-																						<span class="elementor-button-text">Проверить</span>
-													</span>
-					</button>
-				</div>
-			</div>
-		</form>
-		-->
-		
-		<!-- Поглядеть ID, попробовать экранировать символы -->
 		
 		<form class="elementor-login elementor-form" method="post" action="myprofile.php">
-			<!--<input type="hidden" name="post_id" value="44"/>
-			<input type="hidden" name="form_id" value="e88096e"/> 
-			<input type="hidden" name="redirect_to" value="myprofile.php"/> -->
 
 			<div class="elementor-form-fields-wrapper">
 								<div class="elementor-field-type-text elementor-field-group elementor-column elementor-col-60 elementor-field-required">
@@ -485,9 +471,9 @@ img.emoji {
 				
 				-->
 				
-				<div class="elementor-repeater-item-3ba86c9 slick-slide"><div class="slick-slide-bg"></div><div  class="slick-slide-inner"><div class="elementor-slide-content"><div class="elementor-slide-heading">Ресторан</div><div class="elementor-slide-description">Добро пожаловать в лучший ресторан города! <br/> <br/> 1) В этот ресторан не попасть так просто. Бронировать столик нужно за 2 недели. Попробуйе забронировать столик на сегодняшний вечер! <br> 2) Разработчики, тестируя сайт, оставили где-то  план развития комании на месяц! Найдите его. <br/> 3) Найти имя директора компании. <br/> 4) У шеф-повара есть личная станица на этом сайте. Попробуйте найти её! <br/> 5) VIP столики могут резервировать только несколько привелегированных людей.. Попробуйте сделать резерв! </div>
+				<div class="elementor-repeater-item-3ba86c9 slick-slide"><div class="slick-slide-bg"></div><div  class="slick-slide-inner"><div class="elementor-slide-content"><div class="elementor-slide-heading">Ресторан</div><div class="elementor-slide-description">Добро пожаловать в лучший ресторан города! <br/> <br/> 1) В этот ресторан не попасть так просто. Бронировать столик нужно за 2 недели. Попробуйе забронировать столик на сегодняшний вечер! <br> 2) Разработчики оставили где-то  план развития комании на месяц! Найдите его. <br/> 3) Найти имя директора компании. <br/> 4) У шеф-повара есть личная станица на этом сайте. Попробуйте найти её! <br/> 5) VIP столики могут резервировать только несколько привелегированных людей.. Попробуйте сделать резерв! </div>
 <a href="pages/vulnerabilities/restaraunt/restaraunt.php" class="elementor-button elementor-slide-button elementor-size-sm">Перейти!</a>
-<a href="pages/cheats/restarauntCheat.html" class="elementor-button elementor-slide-button elementor-size-sm">Подсказки</a>
+<a href="pages/cheats/restarauntCheat.php" class="elementor-button elementor-slide-button elementor-size-sm">Подсказки</a>
 </div>
 </div>
 </div>
