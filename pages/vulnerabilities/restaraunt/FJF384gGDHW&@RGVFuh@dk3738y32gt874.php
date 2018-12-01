@@ -33,17 +33,10 @@ for ($i = 0; $i < 5; $i++) {
 
 }
 
-#header("Newsletter: false", false);
-
 $text = "Добрый день, исследователь!<br>Давайте для начала убедимся, что заголовки вашей Newspaper являются правдой.";
 $textwin ="Поздравляю! Я уважаю честных людей";
 
-
-#print_r(headers_list());
-#headers_sent();
-
-#$headers = get_headers('http://example.com');
-
+$headers = get_headers('http://example.com');
 
 #$headerStringValue = $_SERVER['HTTP_NEWSLETTER'];
 #echo $headerStringValue;
@@ -51,7 +44,7 @@ $textwin ="Поздравляю! Я уважаю честных людей";
 $headers = apache_request_headers();
 
 foreach ($headers as $header => $value) {
-    echo "$header: $value <br />\n";
+   # echo "$header: $value <br />\n";
 
     if ($header=="Newsletter" AND $value=="true")
     {
@@ -60,8 +53,6 @@ foreach ($headers as $header => $value) {
     }
 
 }
-
-#if header
 
 echo '
 
@@ -332,3 +323,5 @@ var elementorFrontendConfig = {"isEditMode":"","is_rtl":"","breakpoints":{"xs":0
 </html>
 
 ';
+
+?>

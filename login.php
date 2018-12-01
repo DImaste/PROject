@@ -78,14 +78,7 @@ if( isset( $_POST[ 'Login' ] ) ) {
                 };
 
             }
-
-
         }
-
-
-
-
-
         RedirectTo( root_page . 'index.php' );
     }
 
@@ -104,7 +97,6 @@ Header( 'Content-Type: text/html;charset=utf-8' );
 generateSessionToken();
 
 # TODO если человек авторизован, то не показывать форму
-
 
 echo "
 
@@ -231,9 +223,6 @@ img.emoji {
 			}
 		}
 
-
-
-
 	</style>
 	</head>
 
@@ -271,10 +260,6 @@ img.emoji {
 <br />  
   
 	<h3> {$messagesHtml}  </h3> 
-	
-	
-	
-	
 	
 		<div class=\"elementor elementor-2\">
 			<div class=\"elementor-inner\">
@@ -416,9 +401,6 @@ img.emoji {
 			</div>
 		</section>
 		
-		
-		
-		
 				<section data-id=\"e1a08c7\" class=\"elementor-element elementor-element-e1a08c7 elementor-section-boxed elementor-section-height-default elementor-section-height-default elementor-section elementor-top-section\" data-element_type=\"section\">
 						<div class=\"elementor-container elementor-column-gap-default\">
 				<div class=\"elementor-row\">
@@ -462,8 +444,6 @@ img.emoji {
     
     <!--Ends-->
       
-      
-      
 <script type='text/javascript' src='includes/themes/elemento/assets/js/bootstrap.min4a7d.js?ver=20151215'></script>
 <script type='text/javascript' src='includes/themes/elemento/assets/js/flexslider.min4a7d.js?ver=20151215'></script>
 <script type='text/javascript' src='includes/themes/elemento/assets/js/skip-link-focus-fix4a7d.js?ver=20151215'></script>
@@ -494,107 +474,7 @@ var elementorFrontendConfig = {\"isEditMode\":\"\",\"is_rtl\":\"\",\"breakpoints
 
 </html>
 
-
-
-
-
-
-
-
-
 ";
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-echo "
-<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">
-
-<html xmlns=\"http://www.w3.org/1999/xhtml\">
-
-	<head>
-
-		<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />
-
-		<title>Авторизация :: Уязвимое веб-приложение</title>
-
-		<link rel=\"stylesheet\" type=\"text/css\" href=\"" . root_page . "includes/css/login.css\" />
-
-	</head>
-
-	<body>
-
-	<div id=\"wrapper\">
-
-	<div id=\"header\">
-
-	<br />
-
-	<p><img src=\"" . root_page . "includes/images/login_logo.png\" /></p>
-
-	<br />
-
-	</div> <!--<div id=\"header\">-->
-
-	<div id=\"content\">
-
-	<form action=\"login.php\" method=\"post\">
-
-	<fieldset>
-
-			<label for=\"user\">Username</label> <input type=\"text\" class=\"loginInput\" size=\"20\" name=\"username\"><br />
-
-
-			<label for=\"pass\">Password</label> <input type=\"password\" class=\"loginInput\" AUTOCOMPLETE=\"off\" size=\"20\" name=\"password\"><br />
-
-			<br />
-
-			<p class=\"submit\"><input type=\"submit\" value=\"Login\" name=\"Login\"></p>
-
-	</fieldset>
-
-	" . tokenField() . "
-
-	</form>
-
-	<br />
-
-	{$messagesHtml}
-
-	<br />
-	<br />
-	<br />
-	<br />
-	<br />
-	<br />
-	<br />
-	<br />
-
-	</div > <!--<div id=\"content\">-->
-
-	<div id=\"footer\">
-
-	</div> <!--<div id=\"footer\"> -->
-
-	</div> <!--<div id=\"wrapper\"> -->
-
-	</body>
-
-</html>";
-
-*/
 ?>
 

@@ -30,7 +30,6 @@ for ($i = 0; $i < 5; $i++) {
     $outFlags = mysqli_fetch_array($resultFlags);
     $Checkflags[$i]= $outFlags['flag'];
 
-
 }
 
 
@@ -43,16 +42,6 @@ if( isset( $_POST[ 'ToChief' ] ) ) {
     }
 
 }
-
-
-
-
-
-
-
-
-/*echo
-'*/
 
 ?>
 
@@ -366,11 +355,4 @@ var elementorFrontendConfig = {"isEditMode":"","is_rtl":"","breakpoints":{"xs":0
 
 </body>
 
-
-        </html>
-
-<!--'
-;
-
-
-    ?>-->
+</html>

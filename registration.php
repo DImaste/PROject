@@ -11,8 +11,6 @@ DatabaseConnect();
 
 if( isset( $_POST[ 'Login' ] ) ) {
 
-
-
     # Защита от CSRF
     checkToken( $_REQUEST[ 'user_token' ], $_SESSION[ 'session_token' ], 'login.php' );
 
@@ -40,36 +38,16 @@ if( isset( $_POST[ 'Login' ] ) ) {
 
     $avatarUrl  = 'includes/users/';
 
-    #$password = MD5($pass);
-
     $insert = "INSERT INTO users VALUES
 				('{$id}','{$user}','{$user}','{$user}','{$pass}','{$avatarUrl}boy.png', NOW(), '0','0', false);";
     if( !mysqli_query($GLOBALS["___mysqli_ston"],  $insert ) ) {
         PushMessage( "Не удалось внести данные в таблицу пользователей<br />SQL: " . ((is_object($GLOBALS["___mysqli_ston"])) ? mysqli_error($GLOBALS["___mysqli_ston"]) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)) );
         ReloadPage();
 
-
     }
     PushMessage( "Успешная регистрация" );
     RedirectTo( root_page . 'login.php' );
 
-
-
-
-    /*
-    $query  = "SELECT * FROM `users` WHERE user='$user' AND password='$pass';";
-    $result = @mysqli_query($GLOBALS["___mysqli_ston"],  $query ) or die( '<pre>' . ((is_object($GLOBALS["___mysqli_ston"])) ? mysqli_error($GLOBALS["___mysqli_ston"]) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)) . '.<br />Попробуйте <a href="setup.php">переустановить приложение!</a>.</pre>' );
-    if( $result && mysqli_num_rows( $result ) == 1 ) {    # Успешная авторизация
-        PushMessage( "Вы авторизованы как '{$user}'" );
-        Login( $user );
-        RedirectTo( root_page . 'index.php' );
-    }
-
-    # Неверные данные
-    PushMessage( 'Неверные авторизационные данные!' );
-    RedirectTo( 'login.php' );
-
-    */
 }
 
 $messagesHtml = messagesPopAllToHtml();
@@ -82,7 +60,6 @@ Header( 'Content-Type: text/html;charset=utf-8' );
 generateSessionToken();
 
 # TODO выбор аватара, больше даных о пользователе
-
 
 echo "
 
@@ -208,9 +185,6 @@ img.emoji {
 
 			}
 		}
-
-
-
 
 	</style>
 	</head>
@@ -463,18 +437,6 @@ var elementorFrontendConfig = {\"isEditMode\":\"\",\"is_rtl\":\"\",\"breakpoints
 
 </html>
 
-
-
-
-
-
-
-
-
 ";
-
-
-
-
 
 ?>

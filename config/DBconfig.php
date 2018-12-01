@@ -1,5 +1,7 @@
 <?php
 
+# Please set up credentials before using setup.php
+
 $DBMS = 'MySQL';
 
 $_VulnWapp = array();

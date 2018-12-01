@@ -9,17 +9,10 @@ if( !IsLoggedIn() ) {
     RedirectTo( 'login.php' );
 }
 
-#ReloadPage();
-
 # TODO возможность сбросить результат?
-
 # TODO посмотреть как на уровне PHP прописать флаги в операционной системе
 
-
 generateSessionToken();
-
-# TODO вставить при проверке флагов
-#checkToken( $_REQUEST[ 'user_token' ], $_SESSION[ 'session_token' ], 'login.php' );
 
 DatabaseConnect();
 
@@ -42,15 +35,12 @@ $resultUser = @mysqli_query($GLOBALS["___mysqli_ston"], $current_user);
 $outUser = mysqli_fetch_array($resultUser);
 $outPercent = mysqli_fetch_array($resultPercent);
 
-
 Header( 'Content-Type: text/html;charset=utf-8' );
-
-# TODO Вставить флаги в код и проверять соответствие флагу
 
 $Checkflags = array();
 
-
 # TODO CSRF Defence
+# There is some debug cooments
 
 if( isset( $_POST[ 'Check' ] ) )
 {
@@ -91,25 +81,18 @@ if( isset( $_POST[ 'Check' ] ) )
                     PushMessage("Не удалось внести данные в таблицу<br />SQL: " . ((is_object($GLOBALS["___mysqli_ston"])) ? mysqli_error($GLOBALS["___mysqli_ston"]) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)));
                 }
 
-
                 $flagChangeState = "UPDATE `flags` SET `active`=true WHERE `id`='$Increment'";
                 if (!mysqli_query($GLOBALS["___mysqli_ston"], $flagChangeState)) {
                     PushMessage("Не удалось внести данные в таблицу<br />SQL: " . ((is_object($GLOBALS["___mysqli_ston"])) ? mysqli_error($GLOBALS["___mysqli_ston"]) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)));
 
                 }
 
-
                 $insertActiveflag = "UPDATE `users` SET $flagCurrentName=true  WHERE active=true";
                 if (!mysqli_query($GLOBALS["___mysqli_ston"], $insertActiveflag)) {
                     PushMessage("Не удалось внести данные в таблицу<br />SQL: " . ((is_object($GLOBALS["___mysqli_ston"])) ? mysqli_error($GLOBALS["___mysqli_ston"]) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)));
 
                 }
-
-                #echo getFlag($i);
-
             }
-
-
             #echo $Checkflags [$i];
             #echo '<br/>';
         }
@@ -123,11 +106,6 @@ if( isset( $_POST[ 'Check' ] ) )
                 PushMessage('Верно!          <a href=\'myprofile.php\'>Обновить результат!</a>');
 
             }
-
-            # sleep(3);
-
-            #header("Location: myprofile.php");
-
     }
     else
     {
@@ -312,7 +290,7 @@ img.emoji {
 					<div class="elementor-widget-wrap">
 				<div data-id="5c5110e" class="elementor-element elementor-element-5c5110e elementor-widget elementor-widget-heading" data-element_type="heading.default">
 				<div class="elementor-widget-container">
-			<h2 class="elementor-heading-title elementor-size-default">Личный профиль пользователя '.$outUser['user'].'
+			<h2 class="elementor-heading-title elementor-size-default">Личный профиль пользователя <br/> '.$outUser['user'].'
 			
 			 </h2>		</div>
 				</div>
@@ -377,6 +355,7 @@ img.emoji {
 																						<span class="elementor-button-text">Проверить</span>
 													</span>
 					</button>
+					' . tokenField() . ' 
 				</div>
 			</div>
 		</form>
@@ -467,11 +446,17 @@ img.emoji {
 			<div class="elementor-slides slick-arrows-inside slick-dots-inside" data-slider_options="{&quot;slidesToShow&quot;:1,&quot;autoplaySpeed&quot;:5000,&quot;autoplay&quot;:true,&quot;infinite&quot;:true,&quot;pauseOnHover&quot;:true,&quot;speed&quot;:500,&quot;arrows&quot;:true,&quot;dots&quot;:true,&quot;rtl&quot;:false}" data-animation="fadeInUp">
 			
 			<!--
+				BELOW COMMENTS FOR ANOTHER TARGETS
+				
+				-->
+			
+			
+			<!--
 				<div class="elementor-repeater-item-9d88450 slick-slide"><div class="slick-slide-bg"></div><div  class="slick-slide-inner"><div class="elementor-slide-content"><div class="elementor-slide-heading">Форум</div><div class="elementor-slide-description">123</div><div  class="elementor-button elementor-slide-button elementor-size-sm">Click Here</div></div></div></div>
 				
 				-->
 				
-				<div class="elementor-repeater-item-3ba86c9 slick-slide"><div class="slick-slide-bg"></div><div  class="slick-slide-inner"><div class="elementor-slide-content"><div class="elementor-slide-heading">Ресторан</div><div class="elementor-slide-description">Добро пожаловать в лучший ресторан города! <br/> <br/> 1) В этот ресторан не попасть так просто. Бронировать столик нужно за 2 недели. Попробуйе забронировать столик на сегодняшний вечер! <br> 2) Разработчики оставили где-то  план развития комании на месяц! Найдите его. <br/> 3) Найти имя директора компании. <br/> 4) У шеф-повара есть личная станица на этом сайте. Попробуйте найти её! <br/> 5) VIP столики могут резервировать только несколько привелегированных людей.. Попробуйте сделать резерв! </div>
+				<div class="elementor-repeater-item-3ba86c9 slick-slide"><div class="slick-slide-bg"></div><div  class="slick-slide-inner"><div class="elementor-slide-content"><div class="elementor-slide-heading">Ресторан</div><div class="elementor-slide-description">Добро пожаловать в лучший ресторан города! <br/> <br/> 1) В этот ресторан не попасть так просто. Бронировать столик нужно за 2 недели. Попробуйе забронировать столик на сегодняшний вечер! <br> 2) Разработчики оставили где-то  план развития комании на месяц! Найдите его. <br/> 3) Найти имя и страницу директора компании. <br/> 4) У шеф-повара есть личная станица на этом сайте. Попробуйте найти её! <br/> 5) VIP столики могут резервировать только несколько привелегированных людей.. Попробуйте сделать резерв! </div>
 <a href="pages/vulnerabilities/restaraunt/restaraunt.php" class="elementor-button elementor-slide-button elementor-size-sm">Перейти!</a>
 <a href="pages/cheats/restarauntCheat.php" class="elementor-button elementor-slide-button elementor-size-sm">Подсказки</a>
 </div>
@@ -505,7 +490,7 @@ img.emoji {
     <section id="footer" class="jr-site-footer"><!--Now active fixed footer-->
        <!--  <div class="container-large">
 
-' . tokenField() . '                            
+                           
                 
         </div>
  -->
@@ -545,12 +530,6 @@ var elementorFrontendConfig = {"isEditMode":"","is_rtl":"","breakpoints":{"xs":0
 </body>
 
 </html>
-
-
-
-
 ';
-
-#  '#.$VulnWappSession['username']; echo ' -->
 
 ?>

@@ -7,10 +7,7 @@
     define( 'root_page', '' );
     require_once root_page . 'functions.php';
 
-
-
 # TODO вопрос - вы действительно хотите переустановить приложение? Текущий прогресс будет утерян.
-
 
 	if( $DBMS == 'MySQL' ) {
 
@@ -22,7 +19,6 @@
 				}
 				ReloadPage();
 			}
-
 
 			# Создание БД
 			$drop_db = "DROP DATABASE IF EXISTS {$_VulnWapp[ 'db_database' ]};";
@@ -52,24 +48,17 @@
 			}
 			PushMessage( "Таблица пользователей создана." );
 
-
-
-
-			# TODO поле для значений токена
-
-
 			# Внесение данных в таблицу
 			$avatarUrl  = 'includes/users/';
 
 			$insert = "INSERT INTO users VALUES
-				('1','admin','admin','admin',MD5('P@ssw0rd'),'{$avatarUrl}man.png', NOW(), '0','0', false, false, false, false, false, false),
+				('1','admin','admin','admin',MD5('P@ssw0rd!74y^$372jfHF'),'{$avatarUrl}man.png', NOW(), '0','0', false, false, false, false, false, false),
 				('2','Usual','Student','student',MD5('lovehomework'),'{$avatarUrl}boy.png', NOW(), '0','0', false, false, false, false, false, false);";
 			if( !mysqli_query($GLOBALS["___mysqli_ston"],  $insert ) ) {
 				PushMessage( "Не удалось внести данные в таблицу пользователей<br />SQL: " . ((is_object($GLOBALS["___mysqli_ston"])) ? mysqli_error($GLOBALS["___mysqli_ston"]) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)) );
 				ReloadPage();
 			}
 			PushMessage( "Данные внесены в таблицу пользователей." );
-
 
 			# Создание таблицы для гостевой книги
 			$create_tb_flags = "CREATE TABLE flags (id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT, flag varchar(300), active bool, PRIMARY KEY (id));";
@@ -78,7 +67,6 @@
 				ReloadPage();
 			}
 			PushMessage( "Таблица флагов создана." );
-
 
 			# Внесение данных в гостевую книгу
 
@@ -91,12 +79,8 @@
                     PushMessage( "Не удалось внести данные в таблицу флагов<br />SQL: " . ((is_object($GLOBALS["___mysqli_ston"])) ? mysqli_error($GLOBALS["___mysqli_ston"]) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)) );
 
             };
-
-
-			#$insert = "INSERT INTO flags VALUES ('1','Привет, мир. Это тест.','test');";
-
-				#ReloadPage();
 			}
+
 			PushMessage( "Данные внесены в таблицу флагов" );
 
 			# Создание резерного файла конфигурации
@@ -114,7 +98,6 @@
 			if( !IsLoggedIn())
 				PushMessage( "Пожалуйста, <a href='login.php'>авторизуйтесь</a>.<script>setTimeout(function(){window.location.href='login.php'},5000);</script>" );
 			RedirectTo( root_page . 'login.php' );
-
 
 	}
 	else {

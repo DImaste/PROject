@@ -26,8 +26,6 @@ if( mysqli_num_rows( $result ) != 1 ) {
     RedirectTo( root_page . 'setup.php' );
 }
 
-
-
 for ($i = 0; $i < 5; $i++) {
 
     $Increment = $i+1;
@@ -62,8 +60,6 @@ file_put_contents('temp/plan.txt', 'Riarden Restaraunt develpoing plan.
           Have a good day! 
           ');
 
-
-
 $reserve_default="weeks";
 
 setcookie("reserve", $reserve_default);
@@ -89,13 +85,7 @@ if( isset( $_POST[ 'Reserve' ] ) ) {
         ';
 
     }
-
-
-
 }
-
-#TODO Home button, Алерт скрытие и появление, дейстивие на бронирование стола, футер и так далее DONE
-
 
 echo '
 
@@ -954,10 +944,6 @@ var elementorFrontendConfig = {"isEditMode":"","is_rtl":"","breakpoints":{"xs":0
 
 </html>
 
-
-
 ';
-
-
 
 ?>
