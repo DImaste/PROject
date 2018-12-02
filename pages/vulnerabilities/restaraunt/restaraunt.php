@@ -42,7 +42,7 @@ for ($i = 0; $i < 5; $i++) {
 
 if (isset($_GET['page']) && ($_GET['page'])=="chief"){
     $chiefPage = file_get_contents('chief.php');
-    echo($Checkflags[3]);
+    echo($Checkflags[2]);
     echo($chiefPage)  ;
 
     exit();

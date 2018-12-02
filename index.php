@@ -6,6 +6,11 @@
 #ini_set('display_errors', 1);
 #ini_set('display_startup_errors', 1);
 
+
+
+# TODO возможность сброса резульата, отправка результата на почту преподавателю, новые локации, более заполненный профиль. Интеграция с CrackOS
+
+
 define( 'root_page', '' );
 require_once root_page . 'functions.php';
 

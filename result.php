@@ -229,6 +229,15 @@ img.emoji {
 				<div data-id="3568d26" class="elementor-element elementor-element-3568d26 elementor-widget elementor-widget-heading" data-element_type="heading.default">
 				<div class="elementor-widget-container">
 			<h2 class="elementor-heading-title elementor-size-default">'.$outPercent['percent'].'%</h2>		</div>
+			
+			<br/><br/>
+			
+			<!--
+			
+		<h4 class="elementor-size-default">	Отправить результат на почту преподавателю <a target="_blank" rel="designer" href="mailto:xxx">Борисенко Павлу Николаевичу</a> </h4>	
+		-->
+		
+		
 				</div>
 						</div>
 			</div>
